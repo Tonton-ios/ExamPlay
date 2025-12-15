@@ -1,0 +1,832 @@
+document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonction asynchrone
+    // --- VARIABLES GLOBALES ---
+    const allPages = document.querySelectorAll('.page');
+    const allNavButtons = document.querySelectorAll('[data-target]');
+
+    let currentSerie = '';
+    let currentQuestions = [];
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let timerInterval;
+    let totalPoints = 0; // NOUVEAU: Pour suivre le score global
+    let quizzesCompleted = 0; // NOUVEAU: Pour suivre le nombre de quiz terminés
+    let currentUser = null; // Pour stocker les infos de l'utilisateur
+
+    let pageHistory = []; // Pour gérer l'historique de navigation
+    const TIME_PER_QUIZ = 45; // 6minutes pour le quiz
+
+    // --- CONFIGURATION SUPABASE ---
+    const SUPABASE_URL = 'https://rhferbbmwductjqwfsie.supabase.co'; //  URL du projet Supabase
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJoZmVyYmJtd2R1Y3RqcXdmc2llIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU4MDc0ODQsImV4cCI6MjA4MTM4MzQ4NH0.3GmSvvkcTwzTTxbe9K0L0SHhvholI4-xA3Kl6JuSdok'; //  clé anon public du projet
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // --- BASE DE DONNÉES DES QUESTIONS (AVEC MATIÈRES) ---
+    const quizData = {
+        "9e AF":[
+             { subject: "Biologie", question: "C'est quoi la biologie?", answers: ["La science qui étudie la terre", "La science qui étudie la Vie", "La science qui étudie les êtres humains"], correct: 1 },
+             { subject: "Maths", question: "Combien font 2+2?", answers: ["3", "4", "5"], correct: 1 },
+        ],
+        SES: [
+            { subject: "Économie", question: "Qu'est-ce que le PIB ?", answers: ["Produit Intérieur Brut", "Parti Intérieur Basque", "Produit Industriel de Base"], correct: 0 },
+            { subject: "Histoire", question: "Qui est considéré comme le père de la sociologie moderne ?", answers: ["Karl Marx", "Émile Durkheim", "Max Weber"], correct: 1 },
+            { subject: "Philosophie", question: "Que signifie 'Cogito, ergo sum' ?", answers: ["Je pense, donc je suis", "Je vois, donc je crois", "J'agis, donc j'existe"], correct: 0 }
+        ],
+        SVT: [
+            { subject: "Biologie", question: "Quelle est la plus grande cellule du corps humain ?", answers: ["Ovule", "Neurone", "Cellule musculaire"], correct: 0 },
+            { subject: "Géologie", question: "Quel processus les plantes utilisent-elles pour convertir la lumière en énergie ?", answers: ["Respiration", "Transpiration", "Photosynthèse"], correct: 2 },
+            { subject: "Philosophie", question: "Qui a écrit 'Le Contrat Social' ?", answers: ["Voltaire", "Rousseau", "Montesquieu"], correct: 1 }
+        ],
+        LLA: [
+            { subject: "Art", question: "Qui a écrit 'L'Étranger' ?", answers: ["Victor Hugo", "Albert Camus", "Marcel Proust"], correct: 1 },
+            { subject: "Philosophie", question: "Quel mouvement littéraire est associé à Charles Baudelaire ?", answers: ["Le Romantisme", "Le Surréalisme", "Le Symbolisme"], correct: 2 },
+            { subject: "Maths", question: "Combien de côtés a un hexagone ?", answers: ["5", "6", "7"], correct: 1 }
+        ],
+        SMP: [
+            { subject: "Maths", question: "Quelle est la formule chimique de l'eau ?", answers: ["CO2", "H2O", "O2"], correct: 1 },
+            { subject: "Physique", question: "Quelle loi de Newton stipule que 'toute action entraîne une réaction égale et opposée' ?", answers: ["Première loi", "Deuxième loi", "Troisième loi"], correct: 2 },
+            { subject: "Anglais", question: "What is the capital of the UK?", answers: ["Paris", "London", "Berlin"], correct: 1 }
+        ]
+    };
+
+    // Définition des matières principales par série
+    const majorSubjects = {
+        SVT: ["Biologie", "Géologie", "Chimie"],
+        SES: ["Économie", "Histoire"],
+        SMP: ["Maths", "Physique"],
+        LLA: ["Art", "Philosophie", "Anglais", "Espagnol"]
+    };
+
+    // --- BASE DE DONNÉES DES BADGES ---
+    const allBadges = {
+        "premier-quiz": { name: "Novice", icon: "🔰", description: "A terminé son premier quiz." },
+        "score-parfait": { name: "Score Parfait", icon: "🎯", description: "A obtenu 100% à un quiz." },
+        "serie-svt": { name: "Biologiste", icon: "🧬", description: "A terminé 5 quiz en SVT." },
+        "serie-ses": { name: "Économiste", icon: "📈", description: "A terminé 5 quiz en SES." },
+        "serie-smp": { name: "Physicien", icon: "⚛️", description: "A terminé 5 quiz en SMP." },
+        "serie-lla": { name: "Linguiste", icon: "✍️", description: "A terminé 5 quiz en LLA." },
+        "maitre-progress": { name: "Maître du Savoir", icon: "🎓", description: "A atteint 100% de progression dans une série." },
+        "cerveau": { name: "Cerveau en ébullition", icon: "🧠", description: "A gagné plus de 1000 points en une seule journée." },
+        "marathon": { name: "Marathonien", icon: "🏃‍♂️", description: "A terminé 3 quiz d'affilée." }
+        // On peut en ajouter d'autres ici !
+    };
+
+    // --- NAVIGATION ENTRE LES PAGES ---
+    function showPage(pageId, isBack = false) {
+        allPages.forEach(page => {
+            page.classList.remove('active');
+        });
+        const targetPage = document.getElementById(pageId);
+        if (targetPage) {
+            targetPage.classList.add('active');
+            window.scrollTo(0, 0);
+
+            if (!isBack) {
+                // Si ce n'est pas une navigation "retour", on ajoute la page à l'historique
+                pageHistory.push(pageId);
+            }
+
+            // Si la page cible est le dashboard, on s'assure qu'il est à jour
+            if (pageId === 'page-dashboard') {
+                updateDashboard();
+            }
+            // Si la page cible est le profil, on le met à jour
+            if (pageId === 'page-profil') {
+                updateProfilePage();
+            }
+
+        } else {
+            console.error(`Page with id "${pageId}" not found.`);
+        }
+
+    }
+
+    // --- GESTIONNAIRE D'ÉVÉNEMENTS GLOBAL POUR LA NAVIGATION ---
+    // Au lieu d'ajouter un listener sur chaque bouton, on en met un sur le body
+    // et on vérifie si l'élément cliqué (ou un de ses parents) a un attribut `data-target`.
+    // Cela fonctionne même pour les éléments ajoutés dynamiquement.
+    document.body.addEventListener('click', (event) => {
+        const targetElement = event.target.closest('[data-target]');
+
+        if (targetElement) {
+            const targetPageId = targetElement.getAttribute('data-target');
+
+            // Si on clique sur une carte de série, on sauvegarde la série
+            if (targetElement.classList.contains('serie-card')) {
+                currentSerie = targetElement.getAttribute('data-serie');
+                // La série sera envoyée au backend lors des actions (ex: fin de quiz)
+                // On met à jour le nom de la série partout où c'est nécessaire
+                const is9e = currentSerie === '9e AF';
+                const label = is9e ? 'Classe' : 'Série';
+
+                // Mettre à jour le libellé partout
+                document.querySelectorAll('.selection-label').forEach(el => el.textContent = label);
+                // Mettre à jour le nom de la sélection partout
+                document.querySelectorAll('.user-serie-name').forEach(el => {
+                    // Si l'élément est un champ de formulaire (input), on change sa 'value'
+                    // Sinon (span, p, etc.), on change son 'textContent'
+                    if (el.tagName === 'INPUT') {
+                        el.value = currentSerie;
+                    } else {
+                        el.textContent = currentSerie;
+                    }
+                });
+
+                // Afficher la série sur la page d'authentification
+                document.getElementById('auth-selection-display').style.display = 'block'; // Rend le paragraphe visible
+            }
+
+            // Si on clique sur "Créer un compte" ou "Se connecter"
+            if (targetPageId === 'page-dashboard' && targetElement.closest('.auth-form')) {
+                event.preventDefault(); // Empêche la navigation immédiate
+                handleAuth(targetElement); // La fonction est maintenant asynchrone
+            }
+            // La logique de navigation est maintenant DANS le if/else if
+            else if (targetPageId === 'page-quiz') { // Si on va vers le quiz
+                startQuiz();
+                showPage(targetPageId); // Navigue immédiatement
+            } else {
+                // Pour tous les autres clics, on navigue immédiatement
+                showPage(targetPageId);
+                // Si on va à la page du classement, on le génère
+                if (targetPageId === 'page-leaderboard') {
+                    renderFullLeaderboard();
+                }
+            }
+        } 
+    });
+
+    async function handleAuth(button) {
+        const form = button.closest('.auth-form');
+        if (form.id === 'signup-form') {
+            const name = document.getElementById('signup-name').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const departement = document.getElementById('signup-departement').value;
+            const ville = document.getElementById('signup-ville').value;
+
+            if (name.trim() === '') {
+                alert('Veuillez entrer votre nom complet.');
+                return;
+            }
+            if (!email.includes('@')) {
+                alert('Veuillez entrer une adresse e-mail valide.');
+                return;
+            }
+            if (password.trim() === '') {
+                alert('Veuillez créer un mot de passe.');
+                return;
+            }
+            if (departement === '') {
+                alert('Veuillez choisir votre département.');
+                return;
+            }
+
+            // --- INSCRIPTION AVEC SUPABASE ---
+            try {
+                // 1. Crée l'utilisateur dans le système d'authentification de Supabase
+                const { data: authData, error: authError } = await supabase.auth.signUp({
+                    email: email,
+                    password: password,
+                    options: {
+                        // On passe les données ici. Supabase les ajoutera à l'objet utilisateur.
+                        data: {
+                            full_name: name,
+                            picture: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=8A2BE2&color=fff&size=128`
+                        }
+                    }
+                });
+
+                if (authError) throw authError;
+
+                // 2. Insérer les informations supplémentaires dans notre table 'profiles'
+                // C'est la méthode manuelle, plus simple à suivre pour l'instant.
+                const { error: profileError } = await supabase
+                    .from('profiles')
+                    .insert({
+                        id: authData.user.id, // L'ID de l'utilisateur authentifié
+                        full_name: authData.user.user_metadata.full_name,
+                        email: email,
+                        departement: departement,
+                        ville: ville,
+                        picture: authData.user.user_metadata.picture
+                    });
+
+                if (profileError) throw profileError;
+
+                // Si tout a réussi, l'utilisateur est connecté.
+                // On doit récupérer son profil complet pour avoir les points, etc.
+                const { data: userProfile, error: fetchError } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', authData.user.id)
+                    .single();
+
+                if (fetchError) throw fetchError;
+
+                currentUser = userProfile;
+                totalPoints = currentUser.total_points;
+                quizzesCompleted = currentUser.quizzes_completed;
+
+                updateDashboard();
+                showPage('page-dashboard');
+
+            } catch (error) {
+                // On affiche un message personnalisé si l'e-mail est déjà utilisé
+                if (error.message.includes('duplicate key value violates unique constraint "profiles_email_key"')) {
+                    alert("Un compte existe déjà avec cette adresse e-mail. Veuillez vous connecter.");
+                } else {
+                    alert("Une erreur est survenue : " + error.message);
+                }
+            }
+
+        } else if (form.id === 'login-form') {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            // --- CONNEXION AVEC SUPABASE ---
+            try {
+                const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password,
+                });
+
+                if (authError) throw authError;
+
+                // Récupérer le profil complet de l'utilisateur depuis la table 'profiles'
+                const { data: userProfile, error: fetchError } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', authData.user.id)
+                    .single(); // .single() car on attend un seul résultat
+
+                if (fetchError) {
+                    // Si le profil n'existe pas, c'est un problème
+                    throw new Error("Profil utilisateur introuvable après connexion.");
+                }
+
+                currentUser = userProfile;
+                totalPoints = currentUser.total_points;
+                quizzesCompleted = currentUser.quizzes_completed;
+
+                updateDashboard();
+                showPage('page-dashboard');
+
+            } catch (error) {
+                // On affiche un message plus simple pour l'utilisateur
+                if (error.message.includes("Invalid login credentials")) {
+                    alert("L'adresse e-mail ou le mot de passe est incorrect.");
+                } else {
+                    alert("Une erreur est survenue : " + error.message);
+                }
+            }
+        }
+    }
+
+    // --- GESTION DU BASCULEMENT CONNEXION / INSCRIPTION ---
+    document.querySelectorAll('.toggle-auth').forEach(link => {
+        link.addEventListener('click', (event) => {
+            event.preventDefault(); // Empêche le lien de recharger la page
+
+            const loginForm = document.getElementById('login-form');
+            const signupForm = document.getElementById('signup-form');
+
+            // Basculer la classe 'active' entre les deux formulaires
+            loginForm.classList.toggle('active');
+            signupForm.classList.toggle('active');
+        });
+    });
+
+    // --- GESTION DU MENU UTILISATEUR ---
+    function handleLogout() {
+        // Réinitialiser l'état de l'application
+        currentUser = null;
+        currentSerie = '';
+        totalPoints = 0;
+        quizzesCompleted = 0;
+        pageHistory = []; // Vider l'historique
+
+        // Déconnexion avec Supabase
+        supabase.auth.signOut();
+
+        // Cacher tous les menus utilisateur
+        document.querySelectorAll('.user-menu').forEach(menu => menu.classList.remove('show'));
+
+        // Rediriger vers la page d'accueil
+        showPage('page-accueil');
+        console.log("Utilisateur déconnecté.");
+    }
+
+    document.querySelectorAll('.user-info').forEach(userInfo => {
+        userInfo.addEventListener('click', (event) => {
+            // Empêche la fermeture immédiate si on clique sur le menu lui-même
+            event.stopPropagation(); 
+            const menu = userInfo.querySelector('.user-menu');
+            if (menu) {
+                menu.classList.toggle('show');
+            }
+        });
+    });
+
+    document.querySelectorAll('.dropdown-item[id^="logout-btn"]').forEach(btn => {
+        btn.addEventListener('click', handleLogout);
+    });
+
+    // --- GESTION DE LA CONNEXION GOOGLE (AVEC SUPABASE) ---
+    document.querySelector('.btn-google').addEventListener('click', async (event) => {
+        event.preventDefault();
+        try {
+            const { data, error } = await supabase.auth.signInWithOAuth({
+                provider: 'google',
+            });
+            if (error) throw error;
+            // Après la connexion Google, Supabase redirige.
+            // Nous devons gérer la session au rechargement de la page.
+            // (Voir la logique d'initialisation à la fin du fichier)
+        } catch (e) {
+            console.error("Erreur de connexion Google", e);
+            alert(e.message);
+        }
+    });
+
+    // --- GESTION DU BOUTON RETOUR ---
+    document.querySelectorAll('.btn-back').forEach(button => {
+        button.addEventListener('click', goBack);
+    });
+
+    // --- GESTION DU SWIPE POUR RETOUR ---
+    let touchStartX = 0;
+    let touchEndX = 0;
+    const swipeThreshold = 50; // Le doigt doit glisser d'au moins 50px
+
+    document.body.addEventListener('touchstart', (event) => {
+        // On ne prend que le premier doigt posé
+        touchStartX = event.changedTouches[0].screenX;
+    }, { passive: true });
+
+    document.body.addEventListener('touchend', (event) => {
+        touchEndX = event.changedTouches[0].screenX;
+        handleSwipe();
+    });
+
+    function handleSwipe() {
+        // Swipe de gauche à droite
+        if (touchEndX > touchStartX + swipeThreshold) {
+            goBack();
+        }
+    }
+
+    function goBack() {
+        // On ne peut pas revenir en arrière si on est sur la première page
+        if (pageHistory.length > 1) {
+            // 1. Retire la page actuelle de l'historique
+            pageHistory.pop();
+            // 2. Récupère la page précédente (qui est maintenant la dernière de l'historique)
+            const previousPageId = pageHistory[pageHistory.length - 1];
+            // 3. Affiche la page précédente
+            showPage(previousPageId, true); // `true` pour indiquer que c'est une navigation "retour"
+        }
+    }
+
+    // Ajout d'un bouton de retour pour le navigateur (desktop)
+    window.addEventListener('popstate', () => {
+        if (pageHistory.length > 1) {
+            goBack();
+        }
+    });
+
+    // --- LOGIQUE DU QUIZ ---
+
+    /**
+     * Mélange un tableau en utilisant l'algorithme de Fisher-Yates.
+     * @param {Array} array Le tableau à mélanger.
+     * @returns {Array} Un nouveau tableau mélangé.
+     */
+    function shuffleArray(array) {
+        const newArray = [...array]; // Crée une copie pour ne pas modifier l'original
+        for (let i = newArray.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [newArray[i], newArray[j]] = [newArray[j], newArray[i]]; // Échange les éléments
+        }
+        return newArray;
+    }
+
+    function startQuiz() {
+        score = 0;
+        currentQuestionIndex = 0;
+        const allQuestionsForSerie = quizData[currentSerie] || []; // Récupère toutes les questions de la série
+        
+        if (allQuestionsForSerie.length === 0) {
+            alert("Pas de questions pour cette série !");
+            showPage('page-dashboard');
+            return;
+        }
+
+        // On mélange les questions et on en prend 10 au hasard.
+        // Si vous voulez toutes les questions mais dans le désordre, retirez juste `.slice(0, 10)`.
+        currentQuestions = shuffleArray(allQuestionsForSerie).slice(0, 10);
+
+        // On ajoute l'index original à chaque question pour un suivi unique
+        currentQuestions = currentQuestions.map((q, index) => ({
+            ...q,
+            originalIndex: allQuestionsForSerie.indexOf(q)
+        }));
+
+        startTimer();
+        showQuestion();
+    }
+
+    function showQuestion() {
+        // Nettoyer les anciennes réponses
+        const answersContainer = document.getElementById('answers-container');
+        answersContainer.innerHTML = '';
+
+        // Récupérer la question actuelle
+        const question = currentQuestions[currentQuestionIndex];
+
+        // Mettre à jour la série affichée sur la page du quiz
+        document.getElementById('quiz-serie').textContent = currentSerie;
+
+        // Mettre à jour l'affichage
+        document.getElementById('question-counter').textContent = `Question ${currentQuestionIndex + 1}/${currentQuestions.length}`;
+        document.getElementById('question-text').textContent = question.question;
+
+        // Mettre à jour la barre de progression
+        const progress = ((currentQuestionIndex + 1) / currentQuestions.length) * 100;
+        document.getElementById('quiz-progress').style.width = `${progress}%`;
+        document.getElementById('quiz-progress').style.transition = 'width 0.5s ease-in-out';
+
+        // Créer les boutons de réponse
+        question.answers.forEach((answer, index) => {
+            const button = document.createElement('button');
+            button.textContent = answer;
+            button.classList.add('answer-btn');
+            button.addEventListener('click', () => selectAnswer(index, button));
+            answersContainer.appendChild(button);
+        });
+    }
+
+    function selectAnswer(selectedIndex, button) {
+        const question = currentQuestions[currentQuestionIndex];
+        const isCorrect = selectedIndex === question.correct;
+
+        // Désactiver tous les boutons après une réponse
+        document.querySelectorAll('.answer-btn').forEach(btn => btn.disabled = true);
+
+        if (isCorrect) {
+            score++;
+            button.classList.add('correct');
+
+            // --- NOUVELLE LOGIQUE DE PROGRESSION ---
+            // S'assurer que l'objet principal existe
+            if (!currentUser.correctlyAnswered) {
+                currentUser.correctlyAnswered = {};
+            }
+            // Initialiser le tableau pour la série si ce n'est pas déjà fait
+            if (!currentUser.correctlyAnswered[currentSerie]) {
+                currentUser.correctlyAnswered[currentSerie] = [];
+            }
+            // Ajouter l'index de la question si elle n'est pas déjà dans la liste
+            if (!currentUser.correctlyAnswered[currentSerie].includes(question.originalIndex)) {
+                currentUser.correctlyAnswered[currentSerie].push(question.originalIndex);
+            }
+        } else {
+            button.classList.add('wrong');
+            // Montrer la bonne réponse
+            document.querySelectorAll('.answer-btn')[question.correct].classList.add('correct');
+        }
+
+        // Passer à la question suivante après un court délai
+        setTimeout(() => {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < currentQuestions.length) {
+                showQuestion();
+            } else {
+                endQuiz();
+            }
+        }, 1500); // 1.5 secondes avant la prochaine question
+    }
+
+    function startTimer() {
+        let timeLeft = TIME_PER_QUIZ;
+        const timerProgress = document.getElementById('timer-progress');
+        const timerDisplay = document.getElementById('timer-display');
+        const radius = timerProgress.r.baseVal.value;
+        const circumference = 2 * Math.PI * radius;
+
+        timerProgress.style.strokeDasharray = circumference;
+        timerProgress.style.strokeDashoffset = 0;
+        timerDisplay.textContent = timeLeft;
+
+        clearInterval(timerInterval); // S'assurer qu'il n'y a pas d'autre timer en cours
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            timerDisplay.textContent = timeLeft;
+
+            const offset = circumference - (timeLeft / TIME_PER_QUIZ) * circumference;
+            timerProgress.style.strokeDashoffset = offset;
+
+            if (timeLeft <= 0) {
+                endQuiz();
+            }
+        }, 1000);
+    }
+
+    function endQuiz() {
+        clearInterval(timerInterval);
+
+        // Calcul des points pondérés
+        let pointsGagnes = 0;
+        const majors = majorSubjects[currentSerie] || [];
+        // On imagine qu'on a stocké les réponses correctes
+        // Pour la démo, on va juste utiliser le score final
+        pointsGagnes = score * 10; // Calcul simple pour la démo
+        // Dans une vraie app, on bouclerait sur chaque question répondue
+        // et on vérifierait `majors.includes(question.subject)` pour donner plus de points.
+
+        // Mettre à jour les stats globales
+        totalPoints += pointsGagnes;
+        quizzesCompleted++;
+        currentUser.total_points = totalPoints;
+        currentUser.quizzes_completed = quizzesCompleted;
+
+        // S'assurer que le tableau des badges existe avant de l'utiliser
+        if (!Array.isArray(currentUser.badges)) {
+            currentUser.badges = [];
+        }
+
+        // Logique d'attribution des badges
+        if (quizzesCompleted === 1 && !currentUser.badges.includes("premier-quiz")) {
+            currentUser.badges.push("premier-quiz");
+            showNewBadge("premier-quiz");
+        }
+        if (score === currentQuestions.length && !currentUser.badges.includes("score-parfait")) {
+            currentUser.badges.push("score-parfait");
+            showNewBadge("score-parfait");
+        }
+
+        // Mettre à jour l'affichage de la page de résultats
+        document.getElementById('final-score').textContent = `${score}/${currentQuestions.length}`;
+        document.getElementById('points-gagnes').textContent = `+ ${pointsGagnes} points`;
+
+        // --- SAUVEGARDER LA PROGRESSION AVEC SUPABASE ---
+        updateUserProgress(pointsGagnes, currentUser.correctlyAnswered);
+
+        showPage('page-resultats');
+    }
+
+    function showNewBadge(badgeId) {
+        const modal = document.getElementById('badge-modal');
+        const badge = allBadges[badgeId];
+        if (!badge || !modal) return;
+
+        // Remplir les informations de la modale
+        document.getElementById('badge-modal-icon').textContent = badge.icon;
+        document.getElementById('badge-modal-name').textContent = badge.name;
+        document.getElementById('badge-modal-description').textContent = badge.description;
+
+        // Afficher la modale
+        modal.classList.add('show');
+
+        // Gérer la fermeture
+        const closeButton = document.getElementById('badge-modal-close');
+        closeButton.onclick = () => {
+            modal.classList.remove('show');
+        };
+    }
+
+    async function updateUserProgress(pointsGagnes, newCorrectlyAnswered) {
+        if (!currentUser) return;
+
+        try {
+            const { data, error } = await supabase
+                .from('profiles')
+                .update({ 
+                    total_points: currentUser.total_points, // totalPoints a déjà été incrémenté
+                    quizzes_completed: currentUser.quizzes_completed,
+                    badges: currentUser.badges,
+                    correctlyAnswered: newCorrectlyAnswered // Assurez-vous que ce champ existe dans votre table
+                })
+                .eq('id', currentUser.id);
+            
+            if (error) throw error;
+        } catch (error) {
+            console.error("Erreur de mise à jour de la progression:", error);
+        }
+    }
+
+    // --- LOGIQUE DU DASHBOARD ---
+    function updateDashboard() {
+        if (!currentUser) return;
+
+        document.getElementById('dashboard-username').textContent = currentUser.full_name;
+        document.getElementById('dashboard-points').textContent = `${currentUser.total_points} pts`;
+
+        // Mettre à jour l'avatar partout (au cas où l'URL changerait)
+        const avatarUrl = currentUser.picture || 'https://i.imgur.com/user-avatar.png';
+        document.querySelectorAll('.avatar').forEach(img => {
+            img.src = avatarUrl;
+        });
+        
+        // --- NOUVELLE LOGIQUE DE CALCUL DE LA PROGRESSION ---
+        const totalQuestionsInSerie = (quizData[currentSerie] || []).length;
+        const correctlyAnsweredCount = (currentUser.correctlyAnswered && currentUser.correctlyAnswered[currentSerie] || []).length;
+
+        const progressPercentage = totalQuestionsInSerie > 0 
+            ? (correctlyAnsweredCount / totalQuestionsInSerie) * 100 
+            : 0;
+        document.getElementById('dashboard-progress-bar').style.width = `${progressPercentage}%`;
+
+        // Mettre à jour le texte de statut de la progression
+        const statusTextElement = document.getElementById('progress-status-text');
+        let statusMessage = '';
+        if (progressPercentage === 0) {
+            statusMessage = "Commence un quiz pour progresser !";
+        } else if (progressPercentage < 20) {
+            statusMessage = "Pas encore prêt pour l'examen.";
+        } else if (progressPercentage < 50) {
+            statusMessage = "Continue de réviser, tu es sur la bonne voie !";
+        } else if (progressPercentage < 80) {
+            statusMessage = "Belle progression, ne lâche rien !";
+        } else if (progressPercentage < 100) {
+            statusMessage = "Tu y es presque, encore un effort !";
+        } else {
+            statusMessage = "Prêt pour l'examen !";
+        }
+        statusTextElement.textContent = statusMessage;
+
+        // Mettre à jour l'affichage des badges
+        const badgeContainer = document.getElementById('dashboard-badges');
+        badgeContainer.innerHTML = ''; // Vider les anciens badges
+        // S'assurer que currentUser.badges est bien un tableau avant de l'utiliser
+        const userBadges = Array.isArray(currentUser.badges) ? currentUser.badges : [];
+        if (userBadges.length > 0) {
+            currentUser.badges.forEach(badge => {
+                const badgeInfo = allBadges[badge];
+                if (!badgeInfo) return;
+                const badgeElement = document.createElement('span');
+                badgeElement.textContent = badgeInfo.icon;
+                badgeElement.title = `${badgeInfo.name}: ${badgeInfo.description}`; // Nom et description au survol
+                badgeContainer.appendChild(badgeElement);
+            });
+        } else {
+            badgeContainer.textContent = 'Aucun badge';
+        }
+
+    }
+
+    // --- NOUVELLE FONCTION POUR LA PAGE PROFIL ---
+    function updateProfilePage() {
+        if (!currentUser) return;
+
+        const avatarUrl = currentUser.picture || 'https://i.imgur.com/user-avatar.png';
+        document.querySelectorAll('.profile-avatar').forEach(img => img.src = avatarUrl);
+        document.getElementById('profile-name').textContent = currentUser.full_name;
+        document.getElementById('profile-email').textContent = currentUser.email;
+        document.getElementById('profile-location').textContent = `${currentUser.ville}, ${currentUser.departement}`;
+
+        document.getElementById('profile-points').textContent = `${currentUser.total_points || 0} pts`;
+        document.getElementById('profile-quizzes').textContent = `${currentUser.quizzes_completed || 0}`;
+
+        // Mettre à jour les badges
+        const badgeContainer = document.getElementById('profile-badges');
+        badgeContainer.innerHTML = ''; // Vider les anciens badges
+        const userBadges = Array.isArray(currentUser.badges) ? currentUser.badges : [];
+        if (userBadges.length > 0) {
+            currentUser.badges.forEach(badgeId => {
+                const badgeInfo = allBadges[badgeId];
+                if (!badgeInfo) return;
+                const badgeElement = document.createElement('span');
+                badgeElement.textContent = badgeInfo.icon;
+                badgeElement.title = `${badgeInfo.name}: ${badgeInfo.description}`;
+                badgeContainer.appendChild(badgeElement);
+            });
+        } else {
+            badgeContainer.textContent = 'Aucun badge';
+        }
+    }
+
+
+    function renderFullLeaderboard() {
+        if (!currentUser) {
+            showPage('page-dashboard');
+            return;
+        }
+
+        // --- APPEL À SUPABASE POUR LE CLASSEMENT ---
+        async function fetchLeaderboard() {
+            try {
+                const { data: departmentUsers, error } = await supabase
+                    .from('profiles')
+                    .select('id, email, full_name, total_points')
+                    .eq('departement', currentUser.departement)
+                    .order('total_points', { ascending: false });
+
+                if (error) throw error;
+
+        // Séparer les joueurs en ligues
+        const goldLeague = departmentUsers.slice(0, 5);
+
+        const diamondLeague = departmentUsers.slice(5, 15);
+        const silverLeague = departmentUsers.slice(15, 35); // Les 20 suivants
+
+        // Vider les listes précédentes
+        const goldList = document.getElementById('league-gold-list');
+        const diamondList = document.getElementById('league-diamond-list');
+        const silverList = document.getElementById('league-silver-list');
+        const relegationList = document.getElementById('relegation-list');
+        goldList.innerHTML = '';
+        diamondList.innerHTML = '';
+        silverList.innerHTML = '';
+        relegationList.innerHTML = '';
+
+        // Remplir les listes des ligues
+        populateLeagueList(goldList, goldLeague, 0);
+        populateLeagueList(diamondList, diamondLeague, 5);
+        populateLeagueList(silverList, silverLeague, 15);
+
+        // Gérer la zone de relégation
+        const currentUserRank = departmentUsers.findIndex(user => user.id === currentUser.id);
+        const relegationZone = document.getElementById('relegation-zone');
+        // Si l'utilisateur est classé au-delà de la 35ème place (5 Or + 10 Diamant + 20 Argent)
+        if (currentUserRank >= 35) {
+            // On affiche l'utilisateur et les quelques joueurs juste avant lui pour le motiver.
+            // On s'assure de ne pas remonter dans la ligue Argent (qui se termine à l'index 34).
+            const startIndex = Math.max(35, currentUserRank - 4);
+            const relegationUsers = departmentUsers.slice(startIndex, currentUserRank + 1);
+
+            relegationZone.style.display = 'block';
+            populateLeagueList(relegationList, relegationUsers, startIndex);
+        } else {
+            relegationZone.style.display = 'none';
+        }   
+            } catch (err) {
+                console.error("Erreur de chargement du classement:", err.message);
+                alert("Impossible de charger le classement.");
+            }
+        }
+        fetchLeaderboard();
+    }
+
+    function populateLeagueList(listElement, users, rankOffset) {
+        if (users.length === 0) {
+            listElement.innerHTML = '<li>Personne dans cette ligue pour le moment.</li>';
+            return;
+        }
+        users.forEach((user, index) => {
+            const rank = rankOffset + index + 1;
+            const initials = user.full_name.split(' ').map(n => n[0]).join('. ') + '.';
+            const listItem = document.createElement('li');
+            if (user.id === currentUser.id) {
+                listItem.classList.add('current-user');
+            }
+            listItem.innerHTML = `<span class="rank">${rank}</span><span class="name">${initials}</span><span class="score">${user.total_points} pts</span>`;
+            listElement.appendChild(listItem);
+        });
+    }
+
+    // --- INITIALISATION ---
+    // Vérifier si une session utilisateur existe au chargement de la page
+    async function checkUserSession() {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+            // Si une session existe, récupérer le profil complet
+            const { data: userProfile, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', session.user.id)
+                .single();
+
+            if (userProfile && !error) {
+                // Le profil existe, on continue normalement
+                currentUser = userProfile;
+                totalPoints = currentUser.total_points;
+                quizzesCompleted = currentUser.quizzes_completed;
+                // On ne sait pas quelle était la dernière série, on pourrait la sauvegarder
+                // dans le profil ou le localStorage. Pour l'instant, on va au dashboard.
+                updateDashboard();
+                showPage('page-dashboard');
+            } else if (error && error.code === 'PGRST116') {
+                // Erreur 'PGRST116' signifie "0 rows found", donc le profil n'existe pas.
+                // C'est un nouvel utilisateur via Google, on crée son profil.
+                const { data: newProfile, error: insertError } = await supabase
+                    .from('profiles')
+                    .insert({
+                        id: session.user.id,
+                        full_name: session.user.user_metadata.full_name,
+                        email: session.user.email,
+                        picture: session.user.user_metadata.picture,
+                        departement: 'Ouest' // Département par défaut, à améliorer plus tard
+                    })
+                    .select().single();
+                currentUser = newProfile;
+                updateDashboard();
+                showPage('page-dashboard');
+            } else {
+                showPage('page-accueil');
+            }
+        } else {
+            showPage('page-accueil');
+        }
+    }
+    checkUserSession();
+});

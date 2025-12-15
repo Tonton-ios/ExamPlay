@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Préparez les examens d'État haïtiens (9e AF, NS4) avec ExamPlay. Une plateforme de quiz ludique pour réviser, jouer et suivre votre progression vers la réussite.">
+    <title>ExamPlay | Quiz pour les Examens d'État Haïtiens (9e AF & NS4)</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+
+    <!-- On utilise une seule balise <main> pour tout le contenu principal -->
+    <main>
+        <!-- PAGE 1: ACCUEIL (LANDING PAGE) -->
+        <section id="page-accueil" class="page active">
+        <header>
+            <div class="logo">ExamPlay</div>
+        </header>
+        <section class="hero">
+            <div class="hero-text">
+                <h1>Révise. Joue. Progresse.</h1>
+                <p>La meilleure plateforme pour préparer tes examens de manière ludique.</p>
+                <button class="btn btn-primary" data-target="page-selection-serie">Commencer</button>
+            </div>
+            <div class="hero-image">
+                <img src="landingpage_foto/etudiants_.PNG" alt="Illustration d'étudiants qui révisent">
+            </div>
+        </section>
+        <section id="notre-mission">
+            <h2>Notre Mission : Votre Réussite Aux Examens de l'ÉTAT </h2>
+            <p>ExamPlay a été conçu par des étudiants, pour des étudiants. Notre objectif est simple : transformer les longues heures de révision en une expérience motivante et interactive. 
+                Nous croyons qu'apprendre peut être amusant. C'est pourquoi nous avons créé une plateforme de quiz gamifiée, spécifiquement adaptée aux élèves de la 9e AF ainsi qu'aux séries du Nouveau Secondaire 4, 
+                pour vous aider à maîtriser vos matières et à aborder l'examen avec confiance.</p>
+        </section>
+        <section id="comment-ca-marche">
+            <h2>Comment ça marche ?</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-icon">1</div>
+                    <h3>Choisis ta séction</h3>
+                    <p>Sélectionne ton niveau et la filière que tu prépares.</p>
+                </div>
+                <div class="step">
+                    <div class="step-icon">2</div>
+                    <h3>Joue à des quiz</h3>
+                    <p>Teste tes connaissances avec des questions ciblées.</p>
+                </div>
+                <div class="step">
+                    <div class="step-icon">3</div>
+                    <h3>Suis ta progression</h3>
+                    <p>Gagne des points, des badges et grimpe dans le classement !</p>
+                </div>
+            </div>
+        </section>
+        <footer class="site-footer">
+            <div class="footer-content">
+                <div class="social-links">
+                    <a href="https://facebook.com" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://instagram.com" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="https://tiktok.com" target="_blank" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+                </div>
+                <p class="copyright">© 2025 Urban Atelier. Tous droits réservés.</p>
+            </div>
+        </footer>
+        </section>
+
+        <!-- PAGE 2: SÉLECTION DE SÉCTION -->
+        <section id="page-selection-serie" class="page">
+        <div class="centered-container">
+            <h1>Choisis ta séction</h1>
+            <div class="series-grid">
+
+                <div class="serie-card" data-serie="9e AF" data-target="page-auth">
+                    <img src="landingpage_foto/9e_section.JPG" alt="Icône 9e AF">
+                    <span>9e AF</span>
+                </div>
+
+                <div class="serie-card" data-serie="NS4" data-target="page-selection-ns4">
+                    <img src="landingpage_foto/NS4_section.PNG" alt="Icône NS4">
+                    <span>NS4</span>
+                </div>
+            </div>
+        </div>
+        </section>
+
+        <!-- NOUVELLE PAGE: SÉLECTION SÉRIE NS4 -->
+        <section id="page-selection-ns4" class="page">
+        <div class="centered-container">
+            <h1>Choisis ta série NS4</h1>
+            <div class="series-grid">
+                <div class="serie-card" data-serie="SES" data-target="page-auth">
+                    <img src="landingpage_foto/SES_icon.PNG" alt="Icône SES">
+                    <span>SES</span>
+                </div>
+                <div class="serie-card" data-serie="SVT" data-target="page-auth">
+                    <img src="landingpage_foto/SVT_icon.PNG" alt="Icône SVT">
+                    <span>SVT</span>
+                </div>
+                <div class="serie-card" data-serie="LLA" data-target="page-auth">
+                    <img src="landingpage_foto/LLA_icon.PNG" alt="Icône LLA">
+                    <span>LLA</span>
+                </div>
+                <div class="serie-card" data-serie="SMP" data-target="page-auth">
+                    <img src="landingpage_foto/SMP_icon.PNG" alt="Icône SMP">
+                    <span>SMP</span>
+                </div>
+            </div>
+        </div>
+        </section>
+
+        <!-- PAGE 3: INSCRIPTION / CONNEXION -->
+        <section id="page-auth" class="page">
+        <div class="auth-container">
+            <div class="auth-card">
+                <!-- Cet élément affichera la série choisie -->
+                <p id="auth-selection-display" class="user-serie" style="display: none; margin-bottom: 1rem;"><span id="auth-selection-label" class="selection-label">Série</span> : <span id="auth-selection-name" class="user-serie-name"></span></p>
+                
+                <!-- Formulaire de Connexion -->
+                <div id="login-form" class="auth-form active">
+                    <h2>Connexion</h2>
+                    <form>
+                        <input id="login-email" type="email" placeholder="Adresse e-mail" required>
+                        <input id="login-password" type="password" placeholder="Mot de passe" required>
+                        <button type="button" class="btn btn-primary" data-target="page-dashboard">Se connecter</button>
+                    </form>
+                    <div class="divider">ou</div>
+                    <button class="btn btn-google">
+                        <img src="landingpage_foto/google_icon.PNG" alt="Google logo"> Continuer avec Google
+                    </button>
+                    <p class="auth-switch">Pas encore de compte ? <a href="#" class="toggle-auth">Inscris-toi</a></p>
+                </div>
+
+                <!-- Formulaire d'Inscription (caché par défaut) -->
+                <div id="signup-form" class="auth-form">
+                    <h2>Inscription</h2>
+                    <form>
+                        <input type="text" id="signup-serie" class="user-serie-name" disabled>
+                        <input id="signup-name" type="text" placeholder="Nom complet" required>
+                        <input id="signup-email" type="email" placeholder="Adresse e-mail" required>
+                        <input id="signup-password" type="password" placeholder="Créer un mot de passe" required>
+                        <select id="signup-departement" required>
+                            <option value="" disabled selected>Choisis ton département</option>
+                            <option value="Ouest">Ouest</option>
+                            <option value="Sud">Sud</option>
+                            <option value="Nord">Nord</option>
+                            <option value="Nippes">Nippes</option>
+                            <option value="Grand'Anse">Grand'Anse</option>
+                            <option value="Sud-Est">Sud-Est</option>
+                            <option value="Nord-Ouest">Nord-Ouest</option>
+                            <option value="Artibonite">Artibonite</option>
+                            <option value="Centre">Centre</option>
+                            <option value="Nord-Est">Nord-Est</option>
+                        </select>
+                        <input id="signup-ville" type="text" placeholder="Ville" required>
+                        <button type="button" class="btn btn-primary" data-target="page-dashboard">Créer un compte</button>
+                    </form>
+                    <p class="form-note">* Utilise une adresse e-mail valide pour recevoir les nouveautés.</p>
+                    <p class="auth-switch">Déjà un compte ? <a href="#" class="toggle-auth">Connecte-toi</a></p>
+                </div>
+            </div>
+        </div>
+        </section>
+
+        <!-- PAGE 4: DASHBOARD -->
+        <section id="page-dashboard" class="page">
+        <header class="app-header">
+            <div class="logo">ExamPlay</div>
+            <div class="user-info" id="user-info-dashboard">
+                <span id="dashboard-username"></span>
+                <img src="https://i.imgur.com/user-avatar.png" alt="Avatar" class="avatar">
+                <div class="user-menu">
+                    <a href="#" class="dropdown-item" data-target="page-profil">Mon Profil</a>
+                    <a href="#" id="logout-btn-dashboard" class="dropdown-item">Se déconnecter</a>
+                </div>
+            </div>
+        </header>
+        <div class="dashboard-content">
+            <p class="user-serie"><span class="selection-label">Série</span> : <span id="dashboard-serie" class="user-serie-name"></span></p>
+            <button class="btn btn-primary btn-large" data-target="page-quiz">Lancer un quiz !</button>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Points</h3>
+                    <p id="dashboard-points">0 pts</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Mes Badges</h3>
+                    <p id="dashboard-badges" class="badge-display">Aucun badge</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Progression</h3>
+                    <p id="progress-status-text" class="progress-status">Commence un quiz pour progresser !</p>
+                    <div class="progress-bar">
+                        <div id="dashboard-progress-bar" class="progress" style="width: 0%;"></div>
+                    </div>
+                </div>
+                <div class="stat-card leaderboard-card" data-target="page-leaderboard">
+                    <h3>Classement</h3>
+                    <p>🏆 Voir le top</p>
+                </div>
+            </div>
+        </div>
+        </section>
+
+        <!-- PAGE 5: QUIZ -->
+        <section id="page-quiz" class="page">
+        <header class="app-header">
+            <div class="quiz-info"><span class="selection-label">Série</span> : <span id="quiz-serie" class="user-serie-name">SVT</span></div>
+            <div class="quiz-header-right">
+                <div class="timer">
+                    <svg width="60" height="60" viewBox="0 0 60 60">
+                        <circle class="timer-bg" cx="30" cy="30" r="26"></circle>
+                        <circle id="timer-progress" class="timer-progress" cx="30" cy="30" r="26"></circle>
+                    </svg>
+                    <span id="timer-display">60</span>
+                </div>
+                <div class="user-info" id="user-info-quiz">
+                    <img src="https://i.imgur.com/user-avatar.png" alt="Avatar" class="avatar">
+                </div>
+            </div>
+        </header>
+        <div class="quiz-container">
+            <div class="progress-bar-quiz">
+                <div id="quiz-progress" class="progress" style="width: 0%;"></div>
+            </div>
+            <div class="question-card">
+                <h2 id="question-counter"></h2>
+                <p id="question-text"></p>
+                <div id="answers-container" class="answers">
+                    <!-- Les boutons de réponse seront générés par JS -->
+                </div>
+            </div>
+        </div>
+        </section>
+
+        <!-- PAGE 6: RÉSULTATS -->
+        <section id="page-resultats" class="page">
+        <div class="centered-container">
+            <h1>Résultats du Quiz</h1>
+            <p class="user-serie"><span class="selection-label">Série</span> : <span id="result-serie" class="user-serie-name">SVT</span></p>
+            <div class="result-card">
+                <h2>Score Final</h2>
+                <p id="final-score" class="score">0/0</p>
+                <p id="points-gagnes" class="points-gagnes">+ 0 points</p>
+            </div>
+            <!-- La section de badge débloqué est maintenant une modale, donc on la retire d'ici -->
+            <button class="btn btn-primary" data-target="page-dashboard">Retour au Dashboard</button>
+        </div>
+        </section>
+
+        <!-- NOUVELLE PAGE: CLASSEMENT DÉTAILLÉ -->
+        <section id="page-leaderboard" class="page">
+        <header class="app-header">
+            <div class="logo">ExamPlay</div>
+            <div class="user-info" id="user-info-leaderboard">
+                <img src="https://i.imgur.com/user-avatar.png" alt="Avatar" class="avatar">
+                <div class="user-menu">
+                    <a href="#" class="dropdown-item" data-target="page-profil">Mon Profil</a>
+                    <a href="#" id="logout-btn-leaderboard" class="dropdown-item">Se déconnecter</a>
+                </div>
+            </div>
+        </header>
+        <div class="leaderboard-container">
+            <h1 id="leaderboard-page-title">Classement du département</h1>
+            
+            <!-- Ligue Or -->
+            <div class="league-section gold">
+                <h2>Ligue Or 24k <i class="fas fa-crown"></i></h2>
+                <ul id="league-gold-list" class="leaderboard-list"></ul>
+            </div>
+
+            <!-- Ligue Diamant -->
+            <div class="league-section diamond">
+                <h2>Ligue Diamant <i class="fas fa-gem"></i></h2>
+                <ul id="league-diamond-list" class="leaderboard-list"></ul>
+            </div>
+
+            <!-- Ligue Argent -->
+            <div class="league-section silver">
+                <h2>Ligue Argent <i class="fas fa-medal"></i></h2>
+                <ul id="league-silver-list" class="leaderboard-list"></ul>
+            </div>
+
+            <!-- Zone de relégation -->
+            <div id="relegation-zone" class="league-section relegation" style="display: none;">
+                <h2><i class="fas fa-arrow-down"></i> Zone de relégation</h2>
+                <p>Ton classement actuel. Continue de jouer pour monter !</p>
+                <ul id="relegation-list" class="leaderboard-list"></ul>
+            </div>
+        </div>
+        </section>
+
+        <!-- NOUVELLE PAGE: PROFIL UTILISATEUR -->
+        <section id="page-profil" class="page">
+            <header class="app-header">
+                <button class="btn-back" aria-label="Retour"><i class="fas fa-arrow-left"></i> Retour</button>
+                <div class="logo">Mon Profil</div>
+                <div class="user-info" id="user-info-profil">
+                    <img src="https://i.imgur.com/user-avatar.png" alt="Avatar" class="avatar">
+                    <div class="user-menu">
+                        <a href="#" id="logout-btn-profil" class="dropdown-item">Se déconnecter</a>
+                    </div>
+                </div>
+            </header>
+            <div class="profile-container">
+                <div class="profile-card">
+                    <img src="https://i.imgur.com/user-avatar.png" alt="Avatar" class="profile-avatar">
+                    <h2 id="profile-name"></h2>
+                    <p id="profile-email" class="profile-detail"></p>
+                    <p id="profile-location" class="profile-detail"></p>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card"><h3>Points Totaux</h3><p id="profile-points">0 pts</p></div>
+                    <div class="stat-card"><h3>Quiz Terminés</h3><p id="profile-quizzes">0</p></div>
+                    <div class="stat-card"><h3>Badges Obtenus</h3><p id="profile-badges" class="badge-display"></p></div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- NOUVELLE MODALE POUR LES BADGES DÉBLOQUÉS -->
+    <div id="badge-modal" class="badge-modal-overlay">
+        <div class="badge-modal-content">
+            <div class="badge-modal-icon-container">
+                <span id="badge-modal-icon" class="badge-icon"></span>
+            </div>
+            <h2>Nouveau Badge Débloqué !</h2>
+            <h3 id="badge-modal-name"></h3>
+            <p id="badge-modal-description"></p>
+            <button id="badge-modal-close" class="btn btn-primary">Génial !</button>
+        </div>
+    </div>
+
+
+    <!-- On remplace Auth0 par le SDK Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script src="script.js"></script>
+</body>
+</html>
