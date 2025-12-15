@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
     const allNavButtons = document.querySelectorAll('[data-target]');
 
     let currentSerie = '';
+    let currentSubject = ''; // NOUVEAU: Pour stocker la matière choisie
     let currentQuestions = [];
     let currentQuestionIndex = 0;
     let score = 0;
@@ -22,38 +23,60 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
 
     // --- BASE DE DONNÉES DES QUESTIONS (AVEC MATIÈRES) ---
     const quizData = {
-        "9e AF":[
-             { subject: "Biologie", question: "C'est quoi la biologie?", answers: ["La science qui étudie la terre", "La science qui étudie la Vie", "La science qui étudie les êtres humains"], correct: 1 },
-             { subject: "Maths", question: "Combien font 2+2?", answers: ["3", "4", "5"], correct: 1 },
+        "9e AF": [
+            { subject: "Français", question: "Qui a écrit 'Gouverneurs de la Rosée' ?", answers: ["Jacques Roumain", "Frankétienne", "Dany Laferrière"], correct: 0 },
+            { subject: "Maths", question: "Quelle est la racine carrée de 81 ?", answers: ["8", "9", "10"], correct: 1 },
+            { subject: "Sciences Sociales", question: "En quelle année Haïti a-t-elle proclamé son indépendance ?", answers: ["1791", "1801", "1804"], correct: 2 },
+            { subject: "Physique", question: "Quelle unité mesure la force ?", answers: ["Le Watt", "Le Newton", "Le Joule"], correct: 1 },
+            { subject: "Anglais", question: "How do you say 'bonjour' in English?", answers: ["Good evening", "Hello", "Goodbye"], correct: 1 },
+            { subject: "Créole", question: "Kisa 'lakay' vle di an franse ?", answers: ["Maison", "Marché", "École"], correct: 0 },
+            { subject: "Espagnol", question: "¿Cómo se dice 'rojo' en francés?", answers: ["Bleu", "Vert", "Rouge"], correct: 2 },
+            { subject: "EPS", question: "Combien de joueurs composent une équipe de football sur le terrain ?", answers: ["9", "11", "13"], correct: 1 },
+            { subject: "ETAP", question: "Quel outil est utilisé pour planter un clou ?", answers: ["Une scie", "Un marteau", "Un tournevis"], correct: 1 },
+            { subject: "EC", question: "Quel est le symbole de la justice ?", answers: ["Une colombe", "Une balance", "Un lion"], correct: 1 },
+            { subject: "EEA", question: "Quelle couleur obtient-on en mélangeant du bleu et du jaune ?", answers: ["Le rouge", "Le violet", "Le vert"], correct: 2 }
         ],
         SES: [
             { subject: "Économie", question: "Qu'est-ce que le PIB ?", answers: ["Produit Intérieur Brut", "Parti Intérieur Basque", "Produit Industriel de Base"], correct: 0 },
-            { subject: "Histoire", question: "Qui est considéré comme le père de la sociologie moderne ?", answers: ["Karl Marx", "Émile Durkheim", "Max Weber"], correct: 1 },
-            { subject: "Philosophie", question: "Que signifie 'Cogito, ergo sum' ?", answers: ["Je pense, donc je suis", "Je vois, donc je crois", "J'agis, donc j'existe"], correct: 0 }
+            { subject: "Sciences Sociales", question: "Qui est considéré comme le père de la sociologie moderne ?", answers: ["Karl Marx", "Émile Durkheim", "Max Weber"], correct: 1 }, // Déjà présent
+            { subject: "Philosophie", question: "Que signifie 'Cogito, ergo sum' ?", answers: ["Je pense, donc je suis", "Je vois, donc je crois", "J'agis, donc j'existe"], correct: 0 },
+            { subject: "Histoire", question: "En quelle année a eu lieu la Révolution française ?", answers: ["1789", "1848", "1917"], correct: 0 },
+            { subject: "Maths", question: "Si un article coûte 100 gourdes et est soldé à 20%, quel est son nouveau prix ?", answers: ["80 gourdes", "120 gourdes", "20 gourdes"], correct: 0 } // Ajout
         ],
         SVT: [
             { subject: "Biologie", question: "Quelle est la plus grande cellule du corps humain ?", answers: ["Ovule", "Neurone", "Cellule musculaire"], correct: 0 },
-            { subject: "Géologie", question: "Quel processus les plantes utilisent-elles pour convertir la lumière en énergie ?", answers: ["Respiration", "Transpiration", "Photosynthèse"], correct: 2 },
-            { subject: "Philosophie", question: "Qui a écrit 'Le Contrat Social' ?", answers: ["Voltaire", "Rousseau", "Montesquieu"], correct: 1 }
+            { subject: "Géologie", question: "Quel est le nom de la couche la plus externe de la Terre ?", answers: ["Le manteau", "Le noyau", "La croûte terrestre"], correct: 2 },
+            { subject: "Chimie", question: "Quel est le symbole chimique de l'or ?", answers: ["Ag", "Au", "Fe"], correct: 1 },
+            { subject: "Philosophie", question: "Qui a écrit 'Le Contrat Social' ?", answers: ["Voltaire", "Rousseau", "Montesquieu"], correct: 1 },
+            { subject: "Physique", question: "Quelle est l'unité de mesure de la tension électrique ?", answers: ["Ampère", "Watt", "Volt"], correct: 2 }, // Ajout
+            { subject: "Maths", question: "Calculez l'aire d'un cercle de rayon 5cm (π ≈ 3.14).", answers: ["78.5 cm²", "31.4 cm²", "15.7 cm²"], correct: 0 } // Ajout
         ],
         LLA: [
             { subject: "Art", question: "Qui a écrit 'L'Étranger' ?", answers: ["Victor Hugo", "Albert Camus", "Marcel Proust"], correct: 1 },
             { subject: "Philosophie", question: "Quel mouvement littéraire est associé à Charles Baudelaire ?", answers: ["Le Romantisme", "Le Surréalisme", "Le Symbolisme"], correct: 2 },
-            { subject: "Maths", question: "Combien de côtés a un hexagone ?", answers: ["5", "6", "7"], correct: 1 }
+            { subject: "Anglais", question: "Which of these is a synonym for 'happy'?", answers: ["Sad", "Joyful", "Angry"], correct: 1 },
+            { subject: "Espagnol", question: "Traduce 'libro' al francés.", answers: ["Livre", "Table", "Chaise"], correct: 0 },
+            { subject: "Créole", question: "Ki powèt ayisyen ki ekri 'Pèlen Tèt' ?", answers: ["Félix Morisseau-Leroy", "Frankétienne", "Georges Castera"], correct: 1 },
+            { subject: "Musique", question: "Combien de cordes une guitare classique a-t-elle généralement ?", answers: ["4", "6", "8"], correct: 1 },
+            { subject: "Sciences Sociales", question: "Quel est le plus grand océan du monde ?", answers: ["Atlantique", "Indien", "Pacifique"], correct: 2 } // Ajout
         ],
         SMP: [
-            { subject: "Maths", question: "Quelle est la formule chimique de l'eau ?", answers: ["CO2", "H2O", "O2"], correct: 1 },
+            { subject: "Maths", question: "Combien de côtés a un hexagone ?", answers: ["5", "6", "7"], correct: 1 },
             { subject: "Physique", question: "Quelle loi de Newton stipule que 'toute action entraîne une réaction égale et opposée' ?", answers: ["Première loi", "Deuxième loi", "Troisième loi"], correct: 2 },
-            { subject: "Anglais", question: "What is the capital of the UK?", answers: ["Paris", "London", "Berlin"], correct: 1 }
+            { subject: "Chimie", question: "Quelle est la formule chimique de l'eau ?", answers: ["CO2", "H2O", "O2"], correct: 1 },
+            { subject: "Anglais", question: "What is the capital of the UK?", answers: ["Paris", "London", "Berlin"], correct: 1 },
+            { subject: "Biologie", question: "Quel organite est la 'centrale énergétique' de la cellule ?", answers: ["Noyau", "Mitochondrie", "Ribosome"], correct: 1 }, // Ajout
+            { subject: "Philosophie", question: "Quel philosophe grec était le maître d'Alexandre le Grand ?", answers: ["Platon", "Socrate", "Aristote"], correct: 2 } // Ajout
         ]
     };
 
     // Définition des matières principales par série
     const majorSubjects = {
-        SVT: ["Biologie", "Géologie", "Chimie"],
-        SES: ["Économie", "Histoire"],
-        SMP: ["Maths", "Physique"],
-        LLA: ["Art", "Philosophie", "Anglais", "Espagnol"]
+        "9e AF": ["Maths", "Français", "Sciences Sociales", "Physique"],
+        SVT: ["Biologie", "Géologie", "Chimie", "Philosophie"],
+        SES: ["Économie", "Histoire", "Sciences Sociales", "Philosophie"],
+        SMP: ["Maths", "Physique", "Chimie", "Anglais"],
+        LLA: ["Art", "Philosophie", "Anglais", "Espagnol", "Créole"]
     };
 
     // --- BASE DE DONNÉES DES BADGES ---
@@ -141,15 +164,15 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
                 handleAuth(targetElement); // La fonction est maintenant asynchrone
             }
             // La logique de navigation est maintenant DANS le if/else if
-            else if (targetPageId === 'page-quiz') { // Si on va vers le quiz
-                startQuiz();
-                showPage(targetPageId); // Navigue immédiatement
-            } else {
+            else {
                 // Pour tous les autres clics, on navigue immédiatement
                 showPage(targetPageId);
                 // Si on va à la page du classement, on le génère
                 if (targetPageId === 'page-leaderboard') {
                     renderFullLeaderboard();
+                }
+                if (targetPageId === 'page-selection-matiere') {
+                    showSubjectSelection();
                 }
             }
         } 
@@ -410,10 +433,11 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
         return newArray;
     }
 
-    function startQuiz() {
+    function startQuiz(subject) {
         score = 0;
         currentQuestionIndex = 0;
-        const allQuestionsForSerie = quizData[currentSerie] || []; // Récupère toutes les questions de la série
+        let allQuestionsForSerie = quizData[currentSerie] || []; // Récupère toutes les questions de la série
+        allQuestionsForSerie = allQuestionsForSerie.filter(q => q.subject === subject);
         
         if (allQuestionsForSerie.length === 0) {
             alert("Pas de questions pour cette série !");
@@ -433,6 +457,39 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
 
         startTimer();
         showQuestion();
+    }
+
+    function showSubjectSelection() {
+        const allQuestionsForSerie = quizData[currentSerie] || [];
+        const subjects = [...new Set(allQuestionsForSerie.map(q => q.subject))]; // Liste unique des matières
+
+        const grid = document.getElementById('matiere-grid');
+        grid.innerHTML = ''; // Vider la grille
+
+        if (subjects.length === 0) {
+            grid.innerHTML = "<p>Aucune matière n'est disponible pour cette série pour le moment.</p>";
+            return;
+        }
+
+        subjects.forEach(subject => {
+            const card = document.createElement('div');
+            card.className = 'serie-card'; // On réutilise le style des cartes de série
+            card.innerHTML = `<span>${subject}</span>`;
+
+            card.addEventListener('click', () => {
+                currentSubject = subject;
+                startQuiz(currentSubject);
+                showPage('page-quiz');
+            });
+
+            grid.appendChild(card);
+        });
+
+        // Mettre à jour l'affichage de la série sur cette page
+        const serieNameElement = document.querySelector('#page-selection-matiere .user-serie-name');
+        if (serieNameElement) {
+            serieNameElement.textContent = currentSerie;
+        }
     }
 
     function showQuestion() {
@@ -598,6 +655,7 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
         if (!currentUser) return;
 
         try {
+            // On utilise .select() pour que Supabase retourne l'enregistrement mis à jour
             const { data, error } = await supabase
                 .from('profiles')
                 .update({ 
@@ -606,9 +664,14 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
                     badges: currentUser.badges,
                     correctlyAnswered: newCorrectlyAnswered // Assurez-vous que ce champ existe dans votre table
                 })
-                .eq('id', currentUser.id);
+                .eq('id', currentUser.id)
+                .select() // Demande à Supabase de retourner la ligne mise à jour
+                .single(); // On s'attend à un seul résultat
             
             if (error) throw error;
+
+            // Mettre à jour l'objet currentUser local avec les nouvelles données de la BDD
+            currentUser = data;
         } catch (error) {
             console.error("Erreur de mise à jour de la progression:", error);
         }
@@ -715,6 +778,14 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
         // --- APPEL À SUPABASE POUR LE CLASSEMENT ---
         async function fetchLeaderboard() {
             try {
+                // Vérification de sécurité : si l'utilisateur n'a pas de département, on ne peut pas charger le classement.
+                if (!currentUser.departement) {
+                    document.getElementById('league-gold-list').innerHTML = `<li>Veuillez compléter votre profil (département) pour voir le classement.</li>`;
+                    document.getElementById('league-diamond-list').innerHTML = '';
+                    document.getElementById('league-silver-list').innerHTML = '';
+                    return; // Arrêter l'exécution de la fonction
+                }
+
                 const { data: departmentUsers, error } = await supabase
                     .from('profiles')
                     .select('id, email, full_name, total_points')

@@ -180,7 +180,7 @@
         </header>
         <div class="dashboard-content">
             <p class="user-serie"><span class="selection-label">Série</span> : <span id="dashboard-serie" class="user-serie-name"></span></p>
-            <button class="btn btn-primary btn-large" data-target="page-quiz">Lancer un quiz !</button>
+            <button class="btn btn-primary btn-large" data-target="page-selection-matiere">Lancer un quiz !</button>
             <div class="stats-grid">
                 <div class="stat-card">
                     <h3>Points</h3>
@@ -203,6 +203,24 @@
                 </div>
             </div>
         </div>
+        </section>
+
+        <!-- NOUVELLE PAGE: SÉLECTION DE MATIÈRE -->
+        <section id="page-selection-matiere" class="page">
+            <header class="app-header">
+                <button class="btn-back" aria-label="Retour"><i class="fas fa-arrow-left"></i> Retour</button>
+                <div class="logo">ExamPlay</div>
+                <div class="user-info">
+                    <img src="https://i.imgur.com/user-avatar.png" alt="Avatar" class="avatar">
+                </div>
+            </header>
+            <div class="centered-container">
+                <h1>Choisis une matière</h1>
+                <p class="user-serie"><span class="selection-label">Série</span> : <span class="user-serie-name"></span></p>
+                <div id="matiere-grid" class="series-grid">
+                    <!-- Les matières seront générées par JS -->
+                </div>
+            </div>
         </section>
 
         <!-- PAGE 5: QUIZ -->
