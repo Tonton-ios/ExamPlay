@@ -49,6 +49,23 @@ body {
     to { opacity: 1; transform: translateX(0); }
 }
 
+/* NOUVELLE ANIMATION POUR LE LOGO */
+@keyframes logo-animation {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* NOUVELLE ANIMATION POUR LES CARTES */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to { opacity: 1; transform: translateY(0); }
+}
 
 .centered-container {
     display: flex;
@@ -191,8 +208,30 @@ body {
 }
 
 /* --- PAGE 1: ACCUEIL --- */
-#page-accueil header {
+.main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     padding: 1.5rem 5%;
+}
+
+.main-nav a {
+    color: var(--text-color);
+    text-decoration: none;
+    font-weight: 600;
+    margin-left: 2rem;
+    transition: color 0.3s ease;
+    position: relative;
+    padding-bottom: 0.25rem;
+}
+
+.main-nav a:hover {
+    color: var(--primary-color);
+}
+
+#page-accueil .logo {
+    /* Applique l'animation au logo de la page d'accueil uniquement */
+    animation: logo-animation 0.8s ease-out 0.3s backwards;
 }
 
 .hero {
@@ -211,6 +250,24 @@ body {
     font-size: 3.5rem;
     line-height: 1.2;
     margin-bottom: 1rem;
+}
+.hero-text p {
+    margin-bottom: 2rem;
+    color: #555;
+}
+
+/* NOUVELLE ANIMATION DE GLISSEMENT */
+.slide-in-effect {
+    display: inline-block; /* Nécessaire pour appliquer transform */
+    color: var(--primary-color);
+    opacity: 0; /* Commence invisible */
+    transform: translateX(-20px); /* Commence légèrement à gauche */
+    animation: slideIn 0.8s ease-out 1s forwards; /* Applique l'animation slideIn existante */
+}
+
+.main-slogan {
+    /* Préparation pour l'animation de fondu contrôlée par JS */
+    transition: opacity 0.4s ease-in-out;
 }
 
 .hero-image {
@@ -292,6 +349,14 @@ body {
     justify-content: center;
     gap: 1rem;
 }
+.serie-card {
+    /* Appliquer l'animation d'apparition */
+    animation: fadeInUp 0.5s ease-out backwards;
+}
+/* Créer un effet de cascade pour l'animation */
+.series-grid .serie-card:nth-child(2) { animation-delay: 0.1s; }
+.series-grid .serie-card:nth-child(3) { animation-delay: 0.2s; }
+.series-grid .serie-card:nth-child(4) { animation-delay: 0.3s; }
 
 .serie-card:hover {
     transform: translateY(-10px);
@@ -836,6 +901,109 @@ body {
 .badge-modal-content p {
     color: #666;
     margin-bottom: 2rem;
+}
+
+/* --- NOUVEAU STYLE POUR LES PAGES DE CONTENU (À PROPOS, CONTACT) --- */
+.content-container {
+    padding: 2rem;
+    max-width: 900px;
+    margin: 2rem auto;
+    background: var(--light-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
+}
+
+.content-container h2 {
+    margin-bottom: 1.5rem;
+    color: var(--primary-color);
+}
+
+.content-container p {
+    line-height: 1.8;
+    margin-bottom: 2rem;
+}
+
+.social-links-contact {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.social-links-contact a {
+    color: var(--text-color);
+    text-decoration: none;
+    font-size: 1.2rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: color 0.3s ease;
+}
+
+.social-links-contact a:hover {
+    color: var(--primary-color);
+}
+
+/* --- THÈME SOMBRE AUTOMATIQUE (DARK MODE) --- */
+@media (prefers-color-scheme: dark) {
+    :root {
+        /* On inverse les couleurs claires et sombres */
+        --light-color: #2a2a3e; /* Devient la couleur de fond des cartes */
+        --dark-color: #f0f0f0;  /* Devient la couleur du texte principal */
+        --text-color: #e1e1e1;
+        --text-color-light: #1a1a2e;
+
+        /* On définit un nouveau fond et une nouvelle ombre */
+        --background-gradient: linear-gradient(135deg, #1a1a2e 0%, #162238 100%);
+        --card-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Ajustements spécifiques pour les composants en mode sombre */
+    body {
+        color: var(--text-color);
+    }
+
+    /* Changer la couleur du logo en mode sombre */
+    .logo {
+        color: var(--text-color);
+    }
+
+    .auth-card input,
+    .auth-card select {
+        background-color: #3a3a50;
+        border-color: #4a4a62;
+        color: var(--text-color);
+    }
+
+    .auth-card input::placeholder {
+        color: #888;
+    }
+
+    .btn-google {
+        background: #3a3a50;
+        border-color: #4a4a62;
+        color: var(--text-color);
+    }
+
+    .leaderboard-list li {
+        background: #333348;
+        border-color: #4a4a62;
+    }
+
+    .answer-btn {
+        background: #3a3a50;
+        border-color: #4a4a62;
+    }
+
+    .content-container {
+        background: var(--light-color);
+    }
+
+    .about-subtitle {
+        color: #aaa;
+    }
 }
 
 /* --- NOUVEAU STYLE POUR LA PAGE PROFIL --- */

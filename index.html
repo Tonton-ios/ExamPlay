@@ -17,12 +17,17 @@
     <main>
         <!-- PAGE 1: ACCUEIL (LANDING PAGE) -->
         <section id="page-accueil" class="page active">
-        <header>
+        <header class="main-header">
             <div class="logo">ExamPlay</div>
+            <nav class="main-nav">
+                <a href="#" data-target="page-accueil">Accueil</a>
+                <a href="#" data-target="page-apropos">À Propos</a>
+                <a href="#" data-target="page-contact">Nous Contacter</a>
+            </nav>
         </header>
         <section class="hero">
             <div class="hero-text">
-                <h1>Révise. Joue. Progresse.</h1>
+                <h1><span class="main-slogan">Révise. Joue. Progresse.</span> <span class="slide-in-effect">| ExamPlay</span></h1>
                 <p>La meilleure plateforme pour préparer tes examens de manière ludique.</p>
                 <button class="btn btn-primary" data-target="page-selection-serie">Commencer</button>
             </div>
@@ -56,7 +61,7 @@
                 </div>
             </div>
         </section>
-        <footer class="site-footer">
+        <footer id="contact" class="site-footer">
             <div class="footer-content">
                 <div class="social-links">
                     <a href="https://facebook.com" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
@@ -164,6 +169,154 @@
             </div>
         </div>
         </section>
+
+        <!-- NOUVELLE PAGE: COMPLÉTER LE PROFIL (POUR GOOGLE AUTH) -->
+        <section id="page-complete-profile" class="page">
+            <div class="auth-container">
+                <div class="auth-card">
+                    <h2>Finaliser l'inscription</h2>
+                    <p style="margin-bottom: 1.5rem; color: #666;">Il ne manque que quelques informations pour compléter votre profil.</p>
+                    <form id="complete-profile-form">
+                        <select id="complete-profile-departement" required>
+                            <option value="" disabled selected>Choisis ton département</option>
+                            <option value="Ouest">Ouest</option>
+                            <option value="Sud">Sud</option>
+                            <option value="Nord">Nord</option>
+                            <option value="Nippes">Nippes</option>
+                            <option value="Grand'Anse">Grand'Anse</option>
+                            <option value="Sud-Est">Sud-Est</option>
+                            <option value="Nord-Ouest">Nord-Ouest</option>
+                            <option value="Artibonite">Artibonite</option>
+                            <option value="Centre">Centre</option>
+                            <option value="Nord-Est">Nord-Est</option>
+                        </select>
+                        <input id="complete-profile-ville" type="text" placeholder="Ville" required>
+                        <button type="button" id="complete-profile-btn" class="btn btn-primary">Terminer l'inscription</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- NOUVELLE PAGE: À PROPOS -->
+        <section id="page-apropos" class="page">
+            <header class="main-header">
+                <div class="logo">ExamPlay</div>
+                <nav class="main-nav">
+                    <a href="#" data-target="page-accueil">Accueil</a>
+                    <a href="#" data-target="page-apropos">À Propos</a>
+                    <a href="#" data-target="page-contact">Nous Contacter</a>
+                </nav>
+            </header>
+            <div class="content-container">
+                <!-- Section ExamPlay -->
+                <div class="about-section">
+                    <h1>À propos d’ExamPlay</h1>
+                    <p class="about-subtitle">Une plateforme éducative conçue pour l’exigence nationale</p>
+                    <p>ExamPlay est une plateforme numérique éducative dédiée à la préparation aux examens officiels. Elle a été pensée pour répondre à une réalité simple : la réussite scolaire exige des outils fiables, structurés et alignés sur les programmes nationaux.</p>
+                    <p>ExamPlay ne promet pas des raccourcis. Elle propose une méthode, un cadre, et une infrastructure technologique conçus pour accompagner les élèves avec sérieux et continuité.</p>
+                </div>
+
+                <!-- Section Urban Atelier avec image -->
+                <div class="about-section with-image">
+                    <div class="about-text">
+                        <h2>Urban Atelier</h2>
+                        <p class="about-subtitle">L’atelier technologique derrière ExamPlay</p>
+                        <p>ExamPlay est conçue, développée et opérée par Urban Atelier, un atelier de création technologique indépendant, fondé avec une vision claire : mettre la technologie au service de l’éducation, avec rigueur, sécurité et responsabilité.</p>
+                        <p>Urban Atelier est né d’une évolution naturelle : parti de la création visuelle et du design, l’atelier s’est structuré pour devenir un pôle complet d’ingénierie numérique, capable de porter des projets à fort impact éducatif et institutionnel.</p>
+                    </div>
+                    <div class="about-image">
+                        <img src="landingpage_foto/urban_atelier_placeholder.png" alt="Illustration de l'équipe Urban Atelier">
+                    </div>
+                </div>
+
+                <!-- Section Champ d'intervention -->
+                <div class="about-section">
+                    <h2>Un champ d’intervention complet</h2>
+                    <p>Dans le cadre d’ExamPlay, Urban Atelier assure :</p>
+                    <ul>
+                        <li>La conception et le développement de sites web et d’applications</li>
+                        <li>L’architecture, la gestion et la sécurisation de bases de données</li>
+                        <li>Le développement et l’intégration d’API évolutives</li>
+                        <li>La mise en place de systèmes de sécurité et de contrôle d’accès</li>
+                        <li>La création d’outils d’administration et de gestion pédagogique</li>
+                        <li>L’implémentation de services de veille technologique et éducative</li>
+                        <li>La maintenance, l’optimisation et l’évolution continue de la plateforme</li>
+                    </ul>
+                    <p><em>Chaque décision technique est guidée par un principe fondamental : la stabilité aujourd’hui, la scalabilité demain.</em></p>
+                </div>
+
+                <!-- Section Vision éducative -->
+                <div class="about-section">
+                    <h2>Une vision éducative responsable</h2>
+                    <p>ExamPlay s’inscrit dans une démarche de complémentarité avec le système éducatif. La plateforme ne remplace ni l’enseignant ni l’école : elle renforce, structure et prolonge l’apprentissage.</p>
+                    <p>Urban Atelier adopte une approche respectueuse des programmes, des normes académiques et des réalités locales, tout en intégrant les standards technologiques internationaux.</p>
+                </div>
+
+                <!-- Section Gouvernance -->
+                <div class="about-section">
+                    <h2>Gouvernance, éthique et sécurité</h2>
+                    <p>La plateforme repose sur des principes clairs :</p>
+                    <ul>
+                        <li>Protection des données et respect de la vie privée</li>
+                        <li>Sécurisation des accès et des contenus</li>
+                        <li>Traçabilité, contrôle et transparence</li>
+                        <li>Amélioration continue fondée sur l’analyse et la veille</li>
+                    </ul>
+                    <p>ExamPlay est conçue comme une infrastructure éducative durable, capable d’évoluer avec les besoins des élèves et des institutions.</p>
+                </div>
+
+                <!-- Section Ambition -->
+                <div class="about-section">
+                    <h2>Une ambition nationale, une portée évolutive</h2>
+                    <p>ExamPlay vise à devenir une référence éducative numérique, d’abord au niveau national, puis régional. Urban Atelier s’engage à bâtir une plateforme capable de s’adapter aux évolutions pédagogiques, technologiques et institutionnelles.</p>
+                </div>
+
+                <!-- Footer de la page À Propos -->
+                <div class="about-footer">
+                    <div class="about-footer-item">
+                        <h3>ExamPlay</h3>
+                        <p>Une plateforme pour apprendre sérieusement.</p>
+                        <div class="social-links-contact">
+                            <a href="https://facebook.com" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                            <a href="https://instagram.com" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                            <a href="https://tiktok.com" target="_blank" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+                        </div>
+                    </div>
+                    <div class="about-footer-item">
+                        <h3>Urban Atelier</h3>
+                        <p>L’atelier qui construit, sécurise et fait évoluer le système.</p>
+                        <div class="social-links-contact">
+                            <a href="https://facebook.com" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                            <a href="https://instagram.com" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                            <a href="https://tiktok.com" target="_blank" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- NOUVELLE PAGE: NOUS CONTACTER -->
+        <section id="page-contact" class="page">
+            <header class="main-header">
+                <div class="logo">ExamPlay</div>
+                <nav class="main-nav">
+                    <a href="#" data-target="page-accueil">Accueil</a>
+                    <a href="#" data-target="page-apropos">À Propos</a>
+                    <a href="#" data-target="page-contact">Nous Contacter</a>
+                </nav>
+            </header>
+            <div class="content-container">
+                <h2>Restons en contact</h2>
+                <p>Suivez-nous sur les réseaux sociaux pour ne rien manquer des nouveautés et des astuces de révision !</p>
+                <div class="social-links-contact">
+                    <a href="https://facebook.com" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-f"></i> Facebook</a>
+                    <a href="https://instagram.com" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i> Instagram</a>
+                    <a href="https://tiktok.com" target="_blank" aria-label="TikTok"><i class="fab fa-tiktok"></i> TikTok</a>
+                </div>
+                <p class="copyright-contact">© 2025 Urban Atelier. Tous droits réservés.</p>
+            </div>
+        </section>
+
 
         <!-- PAGE 4: DASHBOARD -->
         <section id="page-dashboard" class="page">

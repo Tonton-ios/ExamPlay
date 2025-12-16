@@ -2,20 +2,27 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
     // --- VARIABLES GLOBALES ---
     const allPages = document.querySelectorAll('.page');
     const allNavButtons = document.querySelectorAll('[data-target]');
-
-    let currentSerie = '';
-    let currentSubject = ''; // NOUVEAU: Pour stocker la matière choisie
-    let currentQuestions = [];
-    let currentQuestionIndex = 0;
-    let score = 0;
     let timerInterval;
-    let totalPoints = 0; // NOUVEAU: Pour suivre le score global
-    let quizzesCompleted = 0; // NOUVEAU: Pour suivre le nombre de quiz terminés
     let currentUser = null; // Pour stocker les infos de l'utilisateur
-
+    let tempGoogleUser = null; // Pour stocker temporairement les infos d'un nouvel utilisateur Google
     let pageHistory = []; // Pour gérer l'historique de navigation
-    const TIME_PER_QUIZ = 45; // 6minutes pour le quiz
 
+    // --- CONSTANTES DE CONFIGURATION ---
+    const QUESTIONS_PER_QUIZ = 25; // Nombre de questions par quiz
+    const TIME_PER_QUIZ = QUESTIONS_PER_QUIZ * 30; // 30 secondes par question
+    const POINTS_PER_CORRECT_ANSWER = 10;
+    const POINTS_PER_MAJOR_SUBJECT_ANSWER = 20; // Points bonus pour une matière principale
+    const NEXT_QUESTION_DELAY = 1500; // Délai en ms avant la question suivante
+
+    // --- ETAT DE L'APPLICATION ---
+    const appState = {
+        currentSerie: '',
+        currentSubject: '',
+        currentQuestions: [],
+        currentQuestionIndex: 0,
+        score: 0,
+    };
+    
     // --- CONFIGURATION SUPABASE ---
     const SUPABASE_URL = 'https://rhferbbmwductjqwfsie.supabase.co'; //  URL du projet Supabase
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJoZmVyYmJtd2R1Y3RqcXdmc2llIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU4MDc0ODQsImV4cCI6MjA4MTM4MzQ4NH0.3GmSvvkcTwzTTxbe9K0L0SHhvholI4-xA3Kl6JuSdok'; //  clé anon public du projet
@@ -93,6 +100,31 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
         // On peut en ajouter d'autres ici !
     };
 
+    // --- ANIMATION DU SLOGAN SUR LA PAGE D'ACCUEIL ---
+    const mainSloganElement = document.querySelector('.main-slogan');
+    if (mainSloganElement) {
+        const slogans = [
+            "Révise. Joue. Progresse.",
+            "Maîtrise tes matières.",
+            "Atteins tes objectifs.",
+            "Réussis tes examens."
+        ];
+        let currentSloganIndex = 0;
+
+        function changeSlogan() {
+            mainSloganElement.style.opacity = 0; // Lancer le fondu sortant
+
+            setTimeout(() => {
+                currentSloganIndex = (currentSloganIndex + 1) % slogans.length;
+                mainSloganElement.textContent = slogans[currentSloganIndex];
+                mainSloganElement.style.opacity = 1; // Lancer le fondu entrant
+            }, 400); // Doit correspondre à la durée de la transition CSS
+        }
+
+        // Lancer le changement de slogan après les animations initiales (1.3s)
+        setTimeout(() => setInterval(changeSlogan, 4000), 1300);
+    }
+
     // --- NAVIGATION ENTRE LES PAGES ---
     function showPage(pageId, isBack = false) {
         allPages.forEach(page => {
@@ -135,10 +167,13 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
 
             // Si on clique sur une carte de série, on sauvegarde la série
             if (targetElement.classList.contains('serie-card')) {
-                currentSerie = targetElement.getAttribute('data-serie');
+                appState.currentSerie = targetElement.getAttribute('data-serie');
+                // --- CORRECTION: Sauvegarder la série dans le localStorage ---
+                localStorage.setItem('selectedSerie', appState.currentSerie);
+
                 // La série sera envoyée au backend lors des actions (ex: fin de quiz)
                 // On met à jour le nom de la série partout où c'est nécessaire
-                const is9e = currentSerie === '9e AF';
+                const is9e = appState.currentSerie === '9e AF';
                 const label = is9e ? 'Classe' : 'Série';
 
                 // Mettre à jour le libellé partout
@@ -148,14 +183,19 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
                     // Si l'élément est un champ de formulaire (input), on change sa 'value'
                     // Sinon (span, p, etc.), on change son 'textContent'
                     if (el.tagName === 'INPUT') {
-                        el.value = currentSerie;
+                        el.value = appState.currentSerie;
                     } else {
-                        el.textContent = currentSerie;
+                        el.textContent = appState.currentSerie;
                     }
                 });
 
                 // Afficher la série sur la page d'authentification
                 document.getElementById('auth-selection-display').style.display = 'block'; // Rend le paragraphe visible
+            }
+
+            // Si on clique sur un lien de la nav principale
+            if (targetElement.closest('.main-nav')) {
+                showPage(targetPageId);
             }
 
             // Si on clique sur "Créer un compte" ou "Se connecter"
@@ -247,8 +287,6 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
                 if (fetchError) throw fetchError;
 
                 currentUser = userProfile;
-                totalPoints = currentUser.total_points;
-                quizzesCompleted = currentUser.quizzes_completed;
 
                 updateDashboard();
                 showPage('page-dashboard');
@@ -288,8 +326,6 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
                 }
 
                 currentUser = userProfile;
-                totalPoints = currentUser.total_points;
-                quizzesCompleted = currentUser.quizzes_completed;
 
                 updateDashboard();
                 showPage('page-dashboard');
@@ -323,9 +359,7 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
     function handleLogout() {
         // Réinitialiser l'état de l'application
         currentUser = null;
-        currentSerie = '';
-        totalPoints = 0;
-        quizzesCompleted = 0;
+        appState.currentSerie = '';
         pageHistory = []; // Vider l'historique
 
         // Déconnexion avec Supabase
@@ -410,12 +444,57 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
         }
     }
 
+    // --- GESTION DE LA FINALISATION DU PROFIL (POUR GOOGLE) ---
+    document.getElementById('complete-profile-btn').addEventListener('click', async () => {
+        await handleCompleteProfile();
+    });
+
     // Ajout d'un bouton de retour pour le navigateur (desktop)
     window.addEventListener('popstate', () => {
         if (pageHistory.length > 1) {
             goBack();
         }
     });
+
+    async function handleCompleteProfile() {
+        if (!tempGoogleUser) {
+            alert("Une erreur est survenue. Veuillez réessayer de vous connecter.");
+            showPage('page-accueil');
+            return;
+        }
+
+        const departement = document.getElementById('complete-profile-departement').value;
+        const ville = document.getElementById('complete-profile-ville').value;
+
+        if (!departement || ville.trim() === '') {
+            alert("Veuillez remplir tous les champs.");
+            return;
+        }
+
+        try {
+            const { data: newProfile, error: insertError } = await supabase
+                .from('profiles')
+                .insert({
+                    id: tempGoogleUser.id,
+                    full_name: tempGoogleUser.user_metadata.full_name,
+                    email: tempGoogleUser.email,
+                    picture: tempGoogleUser.user_metadata.picture,
+                    departement: departement,
+                    ville: ville
+                })
+                .select().single();
+
+            if (insertError) throw insertError;
+
+            currentUser = newProfile;
+            tempGoogleUser = null; // Nettoyer l'utilisateur temporaire
+            checkRestoredSerie(); // Vérifier si une série a été sauvegardée
+            updateDashboard();
+            showPage('page-dashboard');
+        } catch (error) {
+            alert("Erreur lors de la création du profil : " + error.message);
+        }
+    }
 
     // --- LOGIQUE DU QUIZ ---
 
@@ -434,33 +513,59 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
     }
 
     function startQuiz(subject) {
-        score = 0;
-        currentQuestionIndex = 0;
-        let allQuestionsForSerie = quizData[currentSerie] || []; // Récupère toutes les questions de la série
+        appState.score = 0;
+        appState.currentQuestionIndex = 0;
+        let allQuestionsForSerie = quizData[appState.currentSerie] || []; // Récupère toutes les questions de la série
         allQuestionsForSerie = allQuestionsForSerie.filter(q => q.subject === subject);
         
         if (allQuestionsForSerie.length === 0) {
-            alert("Pas de questions pour cette série !");
+            alert(`Aucune question trouvée pour la matière "${subject}" dans la série "${appState.currentSerie}".`);
             showPage('page-dashboard');
             return;
         }
 
-        // On mélange les questions et on en prend 10 au hasard.
-        // Si vous voulez toutes les questions mais dans le désordre, retirez juste `.slice(0, 10)`.
-        currentQuestions = shuffleArray(allQuestionsForSerie).slice(0, 10);
+        // --- NOUVELLE LOGIQUE DE SÉLECTION "INTELLIGENTE" ---
 
-        // On ajoute l'index original à chaque question pour un suivi unique
-        currentQuestions = currentQuestions.map((q, index) => ({
-            ...q,
-            originalIndex: allQuestionsForSerie.indexOf(q)
-        }));
+        // 1. Identifier les questions déjà répondues correctement par l'utilisateur pour cette série
+        const correctlyAnsweredIndexes = (currentUser.correctlyAnswered && currentUser.correctlyAnswered[appState.currentSerie]) || [];
+
+        // 2. Séparer les questions en deux groupes : celles non réussies et celles déjà réussies
+        const notYetCorrect = [];
+        const alreadyCorrect = [];
+
+        allQuestionsForSerie.forEach((question, index) => {
+            // On utilise un index unique pour chaque question de la matière
+            const questionWithOriginalIndex = { ...question, originalIndex: index };
+            if (correctlyAnsweredIndexes.includes(index)) {
+                alreadyCorrect.push(questionWithOriginalIndex);
+            } else {
+                notYetCorrect.push(questionWithOriginalIndex);
+            }
+        });
+
+        // 3. Construire le quiz de 10 questions
+        let finalQuestions = [];
+        // On mélange les deux listes pour avoir de la variété
+        const shuffledNotYetCorrect = shuffleArray(notYetCorrect);
+        const shuffledAlreadyCorrect = shuffleArray(alreadyCorrect);
+
+        // On prend autant de questions "non réussies" que possible, jusqu'à la limite du quiz
+        finalQuestions = shuffledNotYetCorrect.slice(0, QUESTIONS_PER_QUIZ);
+
+        // 4. Si on n'a pas assez de questions, on complète avec des questions déjà réussies
+        const remainingNeeded = QUESTIONS_PER_QUIZ - finalQuestions.length;
+        if (remainingNeeded > 0) {
+            finalQuestions.push(...shuffledAlreadyCorrect.slice(0, remainingNeeded));
+        }
+
+        appState.currentQuestions = finalQuestions;
 
         startTimer();
         showQuestion();
     }
 
     function showSubjectSelection() {
-        const allQuestionsForSerie = quizData[currentSerie] || [];
+        const allQuestionsForSerie = quizData[appState.currentSerie] || [];
         const subjects = [...new Set(allQuestionsForSerie.map(q => q.subject))]; // Liste unique des matières
 
         const grid = document.getElementById('matiere-grid');
@@ -477,8 +582,8 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
             card.innerHTML = `<span>${subject}</span>`;
 
             card.addEventListener('click', () => {
-                currentSubject = subject;
-                startQuiz(currentSubject);
+                appState.currentSubject = subject;
+                startQuiz(appState.currentSubject);
                 showPage('page-quiz');
             });
 
@@ -488,7 +593,7 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
         // Mettre à jour l'affichage de la série sur cette page
         const serieNameElement = document.querySelector('#page-selection-matiere .user-serie-name');
         if (serieNameElement) {
-            serieNameElement.textContent = currentSerie;
+            serieNameElement.textContent = appState.currentSerie;
         }
     }
 
@@ -498,17 +603,17 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
         answersContainer.innerHTML = '';
 
         // Récupérer la question actuelle
-        const question = currentQuestions[currentQuestionIndex];
+        const question = appState.currentQuestions[appState.currentQuestionIndex];
 
         // Mettre à jour la série affichée sur la page du quiz
-        document.getElementById('quiz-serie').textContent = currentSerie;
+        document.getElementById('quiz-serie').textContent = appState.currentSerie;
 
         // Mettre à jour l'affichage
-        document.getElementById('question-counter').textContent = `Question ${currentQuestionIndex + 1}/${currentQuestions.length}`;
+        document.getElementById('question-counter').textContent = `Question ${appState.currentQuestionIndex + 1}/${appState.currentQuestions.length}`;
         document.getElementById('question-text').textContent = question.question;
 
         // Mettre à jour la barre de progression
-        const progress = ((currentQuestionIndex + 1) / currentQuestions.length) * 100;
+        const progress = ((appState.currentQuestionIndex + 1) / appState.currentQuestions.length) * 100;
         document.getElementById('quiz-progress').style.width = `${progress}%`;
         document.getElementById('quiz-progress').style.transition = 'width 0.5s ease-in-out';
 
@@ -523,39 +628,39 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
     }
 
     function selectAnswer(selectedIndex, button) {
-        const question = currentQuestions[currentQuestionIndex];
+        const question = appState.currentQuestions[appState.currentQuestionIndex];
         const isCorrect = selectedIndex === question.correct;
 
         // Désactiver tous les boutons après une réponse
         document.querySelectorAll('.answer-btn').forEach(btn => btn.disabled = true);
 
         if (isCorrect) {
-            score++;
+            appState.score++;
             button.classList.add('correct');
 
             // --- NOUVELLE LOGIQUE DE PROGRESSION ---
             // S'assurer que l'objet principal existe
-            if (!currentUser.correctlyAnswered) {
+            if (!currentUser.correctlyAnswered || typeof currentUser.correctlyAnswered !== 'object') {
                 currentUser.correctlyAnswered = {};
             }
             // Initialiser le tableau pour la série si ce n'est pas déjà fait
-            if (!currentUser.correctlyAnswered[currentSerie]) {
-                currentUser.correctlyAnswered[currentSerie] = [];
+            if (!currentUser.correctlyAnswered[appState.currentSerie]) {
+                currentUser.correctlyAnswered[appState.currentSerie] = [];
             }
             // Ajouter l'index de la question si elle n'est pas déjà dans la liste
-            if (!currentUser.correctlyAnswered[currentSerie].includes(question.originalIndex)) {
-                currentUser.correctlyAnswered[currentSerie].push(question.originalIndex);
+            if (!currentUser.correctlyAnswered[appState.currentSerie].includes(question.originalIndex)) {
+                currentUser.correctlyAnswered[appState.currentSerie].push(question.originalIndex);
             }
         } else {
             button.classList.add('wrong');
             // Montrer la bonne réponse
-            document.querySelectorAll('.answer-btn')[question.correct].classList.add('correct');
+            document.querySelectorAll('.answer-btn')[question.correct]?.classList.add('correct');
         }
 
         // Passer à la question suivante après un court délai
         setTimeout(() => {
-            currentQuestionIndex++;
-            if (currentQuestionIndex < currentQuestions.length) {
+            appState.currentQuestionIndex++;
+            if (appState.currentQuestionIndex < appState.currentQuestions.length) {
                 showQuestion();
             } else {
                 endQuiz();
@@ -591,20 +696,23 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
     function endQuiz() {
         clearInterval(timerInterval);
 
-        // Calcul des points pondérés
-        let pointsGagnes = 0;
-        const majors = majorSubjects[currentSerie] || [];
-        // On imagine qu'on a stocké les réponses correctes
-        // Pour la démo, on va juste utiliser le score final
-        pointsGagnes = score * 10; // Calcul simple pour la démo
-        // Dans une vraie app, on bouclerait sur chaque question répondue
-        // et on vérifierait `majors.includes(question.subject)` pour donner plus de points.
+        // --- Calcul des points pondérés ---
+        const majors = majorSubjects[appState.currentSerie] || [];
+        const pointsGagnes = appState.currentQuestions.reduce((total, question, index) => {
+            // On ne peut vérifier que les questions répondues jusqu'à l'index actuel
+            if (index < appState.currentQuestionIndex) {
+                // On suppose que si la réponse est correcte, elle a été enregistrée.
+                // Pour un calcul précis, il faudrait stocker les réponses de l'utilisateur.
+                // Ici, on se base sur le score final, ce qui est une approximation.
+                // Pour une implémentation plus juste, il faudrait stocker chaque réponse.
+                // Pour la simplicité, on se base sur le score global.
+            }
+            return total;
+        }, 0) + (appState.score * POINTS_PER_CORRECT_ANSWER) + (majors.includes(appState.currentSubject) ? appState.score * (POINTS_PER_MAJOR_SUBJECT_ANSWER - POINTS_PER_CORRECT_ANSWER) : 0);
 
         // Mettre à jour les stats globales
-        totalPoints += pointsGagnes;
-        quizzesCompleted++;
-        currentUser.total_points = totalPoints;
-        currentUser.quizzes_completed = quizzesCompleted;
+        currentUser.total_points = (currentUser.total_points || 0) + pointsGagnes;
+        currentUser.quizzes_completed = (currentUser.quizzes_completed || 0) + 1;
 
         // S'assurer que le tableau des badges existe avant de l'utiliser
         if (!Array.isArray(currentUser.badges)) {
@@ -612,17 +720,17 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
         }
 
         // Logique d'attribution des badges
-        if (quizzesCompleted === 1 && !currentUser.badges.includes("premier-quiz")) {
+        if (currentUser.quizzes_completed === 1 && !currentUser.badges.includes("premier-quiz")) {
             currentUser.badges.push("premier-quiz");
             showNewBadge("premier-quiz");
         }
-        if (score === currentQuestions.length && !currentUser.badges.includes("score-parfait")) {
+        if (appState.score === appState.currentQuestions.length && !currentUser.badges.includes("score-parfait")) {
             currentUser.badges.push("score-parfait");
             showNewBadge("score-parfait");
         }
 
         // Mettre à jour l'affichage de la page de résultats
-        document.getElementById('final-score').textContent = `${score}/${currentQuestions.length}`;
+        document.getElementById('final-score').textContent = `${appState.score}/${appState.currentQuestions.length}`;
         document.getElementById('points-gagnes').textContent = `+ ${pointsGagnes} points`;
 
         // --- SAUVEGARDER LA PROGRESSION AVEC SUPABASE ---
@@ -691,8 +799,8 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
         });
         
         // --- NOUVELLE LOGIQUE DE CALCUL DE LA PROGRESSION ---
-        const totalQuestionsInSerie = (quizData[currentSerie] || []).length;
-        const correctlyAnsweredCount = (currentUser.correctlyAnswered && currentUser.correctlyAnswered[currentSerie] || []).length;
+        const totalQuestionsInSerie = (quizData[appState.currentSerie] || []).length;
+        const correctlyAnsweredCount = (currentUser.correctlyAnswered && currentUser.correctlyAnswered[appState.currentSerie] || []).length;
 
         const progressPercentage = totalQuestionsInSerie > 0 
             ? (correctlyAnsweredCount / totalQuestionsInSerie) * 100 
@@ -855,6 +963,14 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
         });
     }
 
+    function checkRestoredSerie() {
+        // --- CORRECTION: Restaurer la série depuis le localStorage ---
+        const savedSerie = localStorage.getItem('selectedSerie');
+        if (savedSerie) {
+            appState.currentSerie = savedSerie;
+        }
+    }
+
     // --- INITIALISATION ---
     // Vérifier si une session utilisateur existe au chargement de la page
     async function checkUserSession() {
@@ -870,28 +986,14 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
             if (userProfile && !error) {
                 // Le profil existe, on continue normalement
                 currentUser = userProfile;
-                totalPoints = currentUser.total_points;
-                quizzesCompleted = currentUser.quizzes_completed;
-                // On ne sait pas quelle était la dernière série, on pourrait la sauvegarder
-                // dans le profil ou le localStorage. Pour l'instant, on va au dashboard.
+                checkRestoredSerie();
                 updateDashboard();
                 showPage('page-dashboard');
             } else if (error && error.code === 'PGRST116') {
-                // Erreur 'PGRST116' signifie "0 rows found", donc le profil n'existe pas.
-                // C'est un nouvel utilisateur via Google, on crée son profil.
-                const { data: newProfile, error: insertError } = await supabase
-                    .from('profiles')
-                    .insert({
-                        id: session.user.id,
-                        full_name: session.user.user_metadata.full_name,
-                        email: session.user.email,
-                        picture: session.user.user_metadata.picture,
-                        departement: 'Ouest' // Département par défaut, à améliorer plus tard
-                    })
-                    .select().single();
-                currentUser = newProfile;
-                updateDashboard();
-                showPage('page-dashboard');
+                // ERREUR 'PGRST116' = Le profil n'existe pas. C'est un nouvel utilisateur Google.
+                // On le redirige vers la page pour compléter son profil.
+                tempGoogleUser = session.user; // On stocke ses infos temporairement
+                showPage('page-complete-profile');
             } else {
                 showPage('page-accueil');
             }
