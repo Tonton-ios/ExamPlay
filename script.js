@@ -1,22 +1,26 @@
 document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonction asynchrone
     // --- VARIABLES GLOBALES ---
     const allPages = document.querySelectorAll('.page');
-     // --- GESTION DU MENU HAMBURGER (MOBILE) ---
-     const navToggle = document.querySelector('.nav-toggle');
-     const mainNav = document.querySelector('.main-nav');
- 
-     if (navToggle && mainNav) {
-         navToggle.addEventListener('click', () => {
-             mainNav.classList.toggle('active');
-         });
- 
-         // Fermer le menu si on clique sur un lien (pour la navigation sur la même page)
-         mainNav.querySelectorAll('a').forEach(link => {
-             link.addEventListener('click', () => {
-                 mainNav.classList.remove('active');
-             });
-         });
-     }
+
+    // --- GESTION DU MENU HAMBURGER (MOBILE) ---
+    // On cible tous les boutons de menu pour que ça fonctionne sur toutes les pages
+    const navToggles = document.querySelectorAll('.nav-toggle');
+    navToggles.forEach(navToggle => {
+        navToggle.addEventListener('click', () => {
+            // On cherche le menu .main-nav qui est dans le même header que le bouton cliqué
+            const mainNav = navToggle.previousElementSibling;
+            if (mainNav && mainNav.classList.contains('main-nav')) {
+                mainNav.classList.toggle('active');
+            }
+        });
+    });
+
+    // Fermer le menu si on clique sur un lien (pour la navigation sur la même page)
+    document.querySelectorAll('.main-nav a').forEach(link => {
+        link.addEventListener('click', () => {
+            link.closest('.main-nav').classList.remove('active');
+        });
+    });
 
     const allNavButtons = document.querySelectorAll('[data-target]');
     let timerInterval;
@@ -141,6 +145,14 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
         // Lancer le changement de slogan après les animations initiales (1.3s)
         setTimeout(() => setInterval(changeSlogan, 4000), 1300);
     }
+
+    // --- GESTION DU CLIC SUR LE LOGO POUR RECHARGER ---
+    document.querySelectorAll('a.logo').forEach(logoLink => {
+        logoLink.addEventListener('click', (e) => {
+            e.preventDefault(); // Empêche la navigation normale
+            window.location.reload(); // Recharge la page
+        });
+    });
 
     // --- NAVIGATION ENTRE LES PAGES ---
     function showPage(pageId, isBack = false) {

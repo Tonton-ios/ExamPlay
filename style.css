@@ -113,6 +113,24 @@ body {
     font-size: 1.5rem;
     color: var(--primary-color);
 }
+/* Style pour le logo en tant que lien */
+a.logo {
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* --- UTILITAIRES D'ACCESSIBILITÉ --- */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
 
 /* --- PAGE 3: AUTHENTIFICATION --- */
 .auth-container {
@@ -272,24 +290,6 @@ body {
 
     .nav-toggle {
         display: block; /* Afficher sur mobile */
-    }
-
-    /* NOUVEAU: Style pour l'en-tête de la page d'accueil */
-    #page-accueil .main-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 1.5rem 5%;
-    }
-
-    /* Correction pour la page d'accueil : afficher toujours la nav */
-    #page-accueil .main-header .main-nav {
-        display: flex;
-        position: static; /* Annule la position absolue */
-        flex-direction: row; /* Assure l'alignement horizontal */
-        background: none; /* Retire le fond blanc */
-        box-shadow: none; /* Retire l'ombre */
-        padding: 0; /* Retire le padding vertical */
     }
 }
 

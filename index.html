@@ -18,7 +18,7 @@
         <!-- PAGE 1: ACCUEIL (LANDING PAGE) -->
         <section id="page-accueil" class="page active">
         <header class="site-header-landing">
-            <div class="logo">ExamPlay</div>
+            <a href="/" class="logo">ExamPlay</a>
             <nav class="main-nav">
                 <a href="#page-acceueil" data-target="page-accueil">Accueil</a>
                 <a href="#apropos" data-target="page-apropos">À Propos</a>
@@ -131,8 +131,14 @@
                 <div id="login-form" class="auth-form active">
                     <h2>Connexion</h2>
                     <form>
-                        <input id="login-email" type="email" placeholder="Adresse e-mail" required>
-                        <input id="login-password" type="password" placeholder="Mot de passe" required>
+                        <div>
+                            <label for="login-email" class="sr-only">Adresse e-mail</label>
+                            <input id="login-email" type="email" placeholder="Adresse e-mail" required>
+                        </div>
+                        <div>
+                            <label for="login-password" class="sr-only">Mot de passe</label>
+                            <input id="login-password" type="password" placeholder="Mot de passe" required>
+                        </div>
                         <button type="button" class="btn btn-primary" data-target="page-dashboard">Se connecter</button>
                     </form>
                     <div class="divider">ou</div>
@@ -146,24 +152,42 @@
                 <div id="signup-form" class="auth-form">
                     <h2>Inscription</h2>
                     <form>
-                        <input type="text" id="signup-serie" class="user-serie-name" disabled>
-                        <input id="signup-name" type="text" placeholder="Nom complet" required>
-                        <input id="signup-email" type="email" placeholder="Adresse e-mail" required>
-                        <input id="signup-password" type="password" placeholder="Créer un mot de passe" required>
-                        <select id="signup-departement" required>
-                            <option value="" disabled selected>Choisis ton département</option>
-                            <option value="Ouest">Ouest</option>
-                            <option value="Sud">Sud</option>
-                            <option value="Nord">Nord</option>
-                            <option value="Nippes">Nippes</option>
-                            <option value="Grand'Anse">Grand'Anse</option>
-                            <option value="Sud-Est">Sud-Est</option>
-                            <option value="Nord-Ouest">Nord-Ouest</option>
-                            <option value="Artibonite">Artibonite</option>
-                            <option value="Centre">Centre</option>
-                            <option value="Nord-Est">Nord-Est</option>
-                        </select>
-                        <input id="signup-ville" type="text" placeholder="Ville" required>
+                        <div>
+                            <label for="signup-serie" class="sr-only">Série ou classe sélectionnée</label>
+                            <input type="text" id="signup-serie" class="user-serie-name" disabled>
+                        </div>
+                        <div>
+                            <label for="signup-name" class="sr-only">Nom complet</label>
+                            <input id="signup-name" type="text" placeholder="Nom complet" required>
+                        </div>
+                        <div>
+                            <label for="signup-email" class="sr-only">Adresse e-mail</label>
+                            <input id="signup-email" type="email" placeholder="Adresse e-mail" required>
+                        </div>
+                        <div>
+                            <label for="signup-password" class="sr-only">Créer un mot de passe</label>
+                            <input id="signup-password" type="password" placeholder="Créer un mot de passe" required>
+                        </div>
+                        <div>
+                            <label for="signup-departement" class="sr-only">Choisis ton département</label>
+                            <select id="signup-departement" required>
+                                <option value="" disabled selected>Choisis ton département</option>
+                                <option value="Ouest">Ouest</option>
+                                <option value="Sud">Sud</option>
+                                <option value="Nord">Nord</option>
+                                <option value="Nippes">Nippes</option>
+                                <option value="Grand'Anse">Grand'Anse</option>
+                                <option value="Sud-Est">Sud-Est</option>
+                                <option value="Nord-Ouest">Nord-Ouest</option>
+                                <option value="Artibonite">Artibonite</option>
+                                <option value="Centre">Centre</option>
+                                <option value="Nord-Est">Nord-Est</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="signup-ville" class="sr-only">Ville</label>
+                            <input id="signup-ville" type="text" placeholder="Ville" required>
+                        </div>
                         <button type="button" class="btn btn-primary" data-target="page-dashboard">Créer un compte</button>
                     </form>
                     <p class="form-note">* Utilise une adresse e-mail valide pour recevoir les nouveautés.</p>
@@ -202,16 +226,10 @@
 
         <!-- NOUVELLE PAGE: À PROPOS -->
         <section id="page-apropos" class="page">
-            <header class="main-header">
-                <div class="logo">ExamPlay</div>
-                <nav class="main-nav">
-                    <a href="#" data-target="page-accueil">Accueil</a>
-                    <a href="#" data-target="page-apropos">À Propos</a>
-                    <a href="#" data-target="page-contact">Nous Contacter</a>
-                </nav>
-                <button class="nav-toggle" aria-label="Ouvrir le menu">
-                    <i class="fas fa-bars"></i>
-                </button>
+            <header class="app-header">
+                <button class="btn-back" aria-label="Retour"><i class="fas fa-arrow-left"></i> Retour</button>
+                <div class="logo">À Propos</div>
+                <div class="user-info"></div> <!-- Espace réservé pour l'alignement -->
             </header>
             <div class="content-container">
                 <!-- Section ExamPlay -->
@@ -303,16 +321,10 @@
 
         <!-- NOUVELLE PAGE: NOUS CONTACTER -->
         <section id="page-contact" class="page">
-            <header class="main-header">
-                <div class="logo">ExamPlay</div>
-                <nav class="main-nav">
-                    <a href="#" data-target="page-accueil">Accueil</a>
-                    <a href="#" data-target="page-apropos">À Propos</a>
-                    <a href="#" data-target="page-contact">Nous Contacter</a>
-                </nav>
-                <button class="nav-toggle" aria-label="Ouvrir le menu">
-                    <i class="fas fa-bars"></i>
-                </button>
+            <header class="app-header">
+                <button class="btn-back" aria-label="Retour"><i class="fas fa-arrow-left"></i> Retour</button>
+                <div class="logo">Nous Contacter</div>
+                <div class="user-info"></div> <!-- Espace réservé pour l'alignement -->
             </header>
             <div class="content-container">
                 <h2>Restons en contact</h2>
@@ -330,7 +342,7 @@
         <!-- PAGE 4: DASHBOARD -->
         <section id="page-dashboard" class="page">
         <header class="app-header">
-            <div class="logo">ExamPlay</div>
+            <a href="/" class="logo">ExamPlay</a>
             <div class="user-info" id="user-info-dashboard">
                 <span id="dashboard-username"></span>
                 <img src="https://i.imgur.com/user-avatar.png" alt="Avatar" class="avatar">
@@ -371,7 +383,7 @@
         <section id="page-selection-matiere" class="page">
             <header class="app-header">
                 <button class="btn-back" aria-label="Retour"><i class="fas fa-arrow-left"></i> Retour</button>
-                <div class="logo">ExamPlay</div>
+                <a href="/" class="logo">ExamPlay</a>
                 <div class="user-info">
                     <img src="https://i.imgur.com/user-avatar.png" alt="Avatar" class="avatar">
                 </div>
@@ -434,7 +446,7 @@
         <!-- NOUVELLE PAGE: CLASSEMENT DÉTAILLÉ -->
         <section id="page-leaderboard" class="page">
         <header class="app-header">
-            <div class="logo">ExamPlay</div>
+            <a href="/" class="logo">ExamPlay</a>
             <div class="user-info" id="user-info-leaderboard">
                 <img src="https://i.imgur.com/user-avatar.png" alt="Avatar" class="avatar">
                 <div class="user-menu">
@@ -477,7 +489,7 @@
         <section id="page-profil" class="page">
             <header class="app-header">
                 <button class="btn-back" aria-label="Retour"><i class="fas fa-arrow-left"></i> Retour</button>
-                <div class="logo">Mon Profil</div>
+                <div class="logo">Mon Profil</div> <!-- Ce logo n'est pas "ExamPlay", donc on ne le change pas -->
                 <div class="user-info" id="user-info-profil">
                     <img src="https://i.imgur.com/user-avatar.png" alt="Avatar" class="avatar">
                     <div class="user-menu">
