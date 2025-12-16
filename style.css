@@ -246,6 +246,16 @@ body {
     z-index: 101; /* Pour être sûr qu'il est cliquable */
 }
 
+/* NOUVEAU: Style pour l'en-tête des pages statiques (Accueil, A Propos, Contact) */
+/* S'applique à TOUTES les tailles d'écran */
+#page-accueil .main-header,
+#page-apropos .main-header,
+#page-contact .main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 5%;
+}
 /* --- RESPONSIVE DESIGN (MOBILE) --- */
 @media (max-width: 768px) {
     .main-nav {
@@ -272,6 +282,18 @@ body {
 
     .nav-toggle {
         display: block; /* Afficher sur mobile */
+    }
+
+    /* Correction pour les pages statiques : afficher toujours la nav */
+    #page-accueil .main-header .main-nav,
+    #page-apropos .main-header .main-nav,
+    #page-contact .main-header .main-nav {
+        display: flex; /* Assure que la nav est visible */
+        position: static; /* Annule la position absolue */
+        flex-direction: row; /* Assure l'alignement horizontal */
+        background: none; /* Retire le fond blanc sur mobile */
+        box-shadow: none; /* Retire l'ombre */
+        padding: 0; /* Retire le padding vertical */
     }
 }
 
