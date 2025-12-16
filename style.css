@@ -246,16 +246,52 @@ body {
     z-index: 101; /* Pour être sûr qu'il est cliquable */
 }
 
-/* --- Styles pour le menu mobile --- */
+/* --- RESPONSIVE DESIGN (MOBILE) --- */
 @media (max-width: 768px) {
+    .main-nav {
+        display: none; /* Caché par défaut */
+        flex-direction: column;
+        position: absolute;
+        top: 100%; /* Juste en dessous du header */
+        left: 0;
+        width: 100%;
+        background: var(--light-color);
+        padding: 1rem 0;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        text-align: center;
+        z-index: 100;
+    }
+
+    .main-nav.active {
+        display: flex; /* Afficher le menu quand il est actif */
+    }
+
     .main-nav a {
-        padding: 1rem; /* Exemple de style pour mobile */
+        padding: 1rem;
     }
 
     .nav-toggle {
         display: block; /* Afficher sur mobile */
     }
-} /* Fin du bloc @media */
+
+    /* NOUVEAU: Style pour l'en-tête de la page d'accueil */
+    #page-accueil .main-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.5rem 5%;
+    }
+
+    /* Correction pour la page d'accueil : afficher toujours la nav */
+    #page-accueil .main-header .main-nav {
+        display: flex;
+        position: static; /* Annule la position absolue */
+        flex-direction: row; /* Assure l'alignement horizontal */
+        background: none; /* Retire le fond blanc */
+        box-shadow: none; /* Retire l'ombre */
+        padding: 0; /* Retire le padding vertical */
+    }
+}
 
 #page-accueil .logo {
     /* Applique l'animation au logo de la page d'accueil uniquement */
@@ -264,15 +300,43 @@ body {
 
 .hero {
     display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 5%;
+    min-height: 70vh;
+}
+
+.hero-text {
+    flex: 1;
+}
+
+.hero-text h1 {
+    font-size: 3.5rem;
+    line-height: 1.2;
+    margin-bottom: 1rem;
 }
 .hero-text p {
     margin-bottom: 2rem;
     color: #555;
 }
 
+/* NOUVELLE ANIMATION DE GLISSEMENT */
 .slide-in-effect {
     display: inline-block; /* Nécessaire pour appliquer transform */
     color: var(--primary-color);
+    opacity: 0; /* Commence invisible */
+    transform: translateX(-20px); /* Commence légèrement à gauche */
+    animation: slideIn 0.8s ease-out 1s forwards; /* Applique l'animation slideIn existante */
+}
+
+.main-slogan {
+    /* Préparation pour l'animation de fondu contrôlée par JS */
+    transition: opacity 0.4s ease-in-out;
+}
+
+.hero-image {
+    flex: 1;
+    text-align: center;
 }
 
 .hero-image img {
