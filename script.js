@@ -1,6 +1,22 @@
 document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonction asynchrone
     // --- VARIABLES GLOBALES ---
     const allPages = document.querySelectorAll('.page');
+     // --- GESTION DU MENU HAMBURGER (MOBILE) ---
+     const navToggle = document.querySelector('.nav-toggle');
+     const mainNav = document.querySelector('.main-nav');
+ 
+     if (navToggle && mainNav) {
+         navToggle.addEventListener('click', () => {
+             mainNav.classList.toggle('active');
+         });
+ 
+         // Fermer le menu si on clique sur un lien (pour la navigation sur la même page)
+         mainNav.querySelectorAll('a').forEach(link => {
+             link.addEventListener('click', () => {
+                 mainNav.classList.remove('active');
+             });
+         });
+     }
 
     const allNavButtons = document.querySelectorAll('[data-target]');
     let timerInterval;
