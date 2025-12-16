@@ -288,12 +288,14 @@ body {
     #page-accueil .main-header .main-nav,
     #page-apropos .main-header .main-nav,
     #page-contact .main-header .main-nav {
-        display: flex; /* Assure que la nav est visible */
+        display: flex;
         position: static; /* Annule la position absolue */
-        flex-direction: row; /* Assure l'alignement horizontal */
-        background: none; /* Retire le fond blanc sur mobile */
-        box-shadow: none; /* Retire l'ombre */
-        padding: 0; /* Retire le padding vertical */
+        flex-direction: row;
+        background: none;
+        box-shadow: none;
+        padding: 0;
+        gap: 1rem; /* Réduit l'espacement entre les liens sur mobile */
+        margin: 0; /* Annule les marges pour un meilleur contrôle */
     }
 }
 
