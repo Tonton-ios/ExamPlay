@@ -1002,20 +1002,16 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
 
     // --- INITIALISATION ---
     // Vérifier si une session utilisateur existe au chargement de la page
-    async function checkUserSession() {
-        // --- CORRECTION ---
-        // Vérifier si l'URL contient une ancre correspondant à une page publique.
-        // Cela permet d'accéder directement à #apropos ou #contact sans être connecté.
-        const urlHash = window.location.hash.substring(1); // ex: "apropos"
-        const publicPageMap = {
-            'apropos': 'page-apropos',
-            'contacter': 'page-contact'
-        };
-        const targetPageId = publicPageMap[urlHash];
-        if (targetPageId) {
-            showPage(targetPageId);
-            return; // Arrêter la fonction ici pour ne pas rediriger
+    async function checkUserSession(initialPageId = 'page-accueil') {
+        // --- CORRECTION DÉFINITIVE ---
+        // Si la page demandée est une page publique, on ne vérifie pas la session
+        // et on l'affiche directement.
+        const publicPages = ['page-apropos', 'page-contact', 'page-accueil'];
+        if (publicPages.includes(initialPageId)) {
+            showPage(initialPageId);
+            return;
         }
+        // Pour toutes les autres pages, on vérifie la session.
 
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
@@ -1041,8 +1037,18 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
                 showPage('page-accueil');
             }
         } else {
+            // Si pas de session et que la page n'est pas publique, on redirige vers l'accueil.
             showPage('page-accueil');
         }
     }
-    checkUserSession();
+
+    // Logique d'initialisation au chargement de la page
+    const urlHash = window.location.hash.substring(1);
+    const publicPageMap = {
+        'apropos': 'page-apropos',
+        'contacter': 'page-contact',
+        'page-accueil': 'page-accueil'
+    };
+    const initialPage = publicPageMap[urlHash] || 'page-accueil';
+    checkUserSession(initialPage);
 });
