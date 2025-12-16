@@ -989,10 +989,10 @@ a.logo {
 
 .social-links-contact {
     display: flex;
-    flex-direction: column;
+    flex-direction: row; 
     align-items: flex-start;
     gap: 1rem;
-    margin-top: 2rem;
+    margin-top: 0; /* On supprime complètement l'espace supérieur */
 }
 
 .social-links-contact a {
@@ -1009,6 +1009,18 @@ a.logo {
 .social-links-contact a:hover {
     color: var(--primary-color);
 }
+
+/* Style spécifique pour les icônes en bas de la page "À Propos" */
+.about-footer .social-links-contact {
+    flex-direction: row; /* Aligne les icônes horizontalement */
+    gap: 1.5rem; /* Ajoute un peu plus d'espace entre les icônes */
+}
+
+/* Réduire l'espace sous le texte qui précède les icônes dans le footer "À Propos" */
+.about-footer-item > p {
+    margin-bottom: 0.75rem; /* On réduit encore plus la marge sous le texte */
+}
+
 
 /* --- THÈME SOMBRE AUTOMATIQUE (DARK MODE) --- */
 @media (prefers-color-scheme: dark) {
@@ -1070,6 +1082,43 @@ a.logo {
     }
 }
 
+/* --- NOUVEAU STYLE POUR LA PAGE À PROPOS --- */
+/* Style pour la section "À propos" avec une image */
+.about-section {
+    display: flex;
+    gap: 2rem; /* Espace entre l'image et le texte */
+    align-items: center; /* Centre verticalement le contenu */
+    margin-bottom: 3rem; /* Espace sous la section */
+}
+
+/* Conteneur de l'image (le petit carré) */
+.about-figure {
+    margin: 0; /* Supprime la marge par défaut de <figure> */
+    flex-shrink: 0; /* Empêche l'image de rétrécir */
+    width: 250px; /* Largeur fixe pour le conteneur de l'image */
+    height: 250px; /* Hauteur fixe pour le conteneur de l'image */
+}
+
+/* Style de l'image elle-même */
+.about-figure img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* S'assure que l'image remplit le carré sans se déformer */
+    border-radius: 15px; /* Coins arrondis */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Ombre légère pour un effet de profondeur */
+}
+
+/* Pour les écrans plus petits (mobiles), on repasse à une disposition verticale */
+@media (max-width: 768px) {
+    .about-section {
+        flex-direction: column; /* Met l'image au-dessus du texte */
+    }
+
+    .about-figure {
+        order: -1; /* Place l'image en premier sur mobile */
+        margin-bottom: 1.5rem; /* Espace entre l'image et le texte */
+    }
+}
 /* --- NOUVEAU STYLE POUR LA PAGE PROFIL --- */
 .profile-container {
     padding: 2rem;
