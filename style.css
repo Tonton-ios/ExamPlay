@@ -19,6 +19,9 @@
     padding: 0;
     box-sizing: border-box;
 }
+html{
+    scroll-behavior: smooth;
+}
 
 body {
     font-family: 'Poppins', sans-serif;
@@ -208,11 +211,16 @@ body {
 }
 
 /* --- PAGE 1: ACCUEIL --- */
-.main-header {
+.site-header-landing {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 1.5rem 5%;
+    position:relative;
+}
+.main-nav{
+    display: flex;
+    gap: 2rem;
 }
 
 .main-nav a {
@@ -227,6 +235,44 @@ body {
 
 .main-nav a:hover {
     color: var(--primary-color);
+}
+.nav-toggle {
+    display: none; /* Caché sur desktop */
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--text-color);
+    cursor: pointer;
+    z-index: 101; /* Pour être sûr qu'il est cliquable */
+}
+
+/* --- RESPONSIVE DESIGN (MOBILE) --- */
+@media (max-width: 768px) {
+    .main-nav {
+        display: none; /* Caché par défaut */
+        flex-direction: column;
+        position: absolute;
+        top: 100%; /* Juste en dessous du header */
+        left: 0;
+        width: 100%;
+        background: var(--light-color);
+        padding: 1rem 0;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        text-align: center;
+        z-index: 100;
+    }
+
+    .main-nav.active {
+        display: flex; /* Afficher le menu quand il est actif */
+    }
+
+    .main-nav a {
+        padding: 1rem;
+    }
+
+    .nav-toggle {
+        display: block; /* Afficher sur mobile */
+    }
 }
 
 #page-accueil .logo {
