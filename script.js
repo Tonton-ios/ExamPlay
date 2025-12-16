@@ -1003,6 +1003,15 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
     // --- INITIALISATION ---
     // Vérifier si une session utilisateur existe au chargement de la page
     async function checkUserSession() {
+        // --- CORRECTION ---
+        // Vérifier si l'URL contient un hash pour une page publique (#page-apropos, #page-contact)
+        const urlHash = window.location.hash.substring(1); // ex: "page-apropos"
+        const publicPages = ['page-apropos', 'page-contact'];
+        if (publicPages.includes(urlHash)) {
+            showPage(urlHash);
+            return; // Arrêter la fonction ici pour ne pas rediriger
+        }
+
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
             // Si une session existe, récupérer le profil complet
