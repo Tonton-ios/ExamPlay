@@ -1021,45 +1021,8 @@ a.logo {
     margin-bottom: 0.75rem; /* On réduit encore plus la marge sous le texte */
 }
 
-/* --- NOUVEAU STYLE POUR LE FORMULAIRE DE CONTACT --- */
-.contact-form {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    margin-top: 2rem;
-    margin-bottom: 3rem;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-}
-
-.form-group label {
-    margin-bottom: 0.5rem;
-    font-weight: 600;
-    color: #555;
-}
-
-.form-group input,
-.form-group textarea {
-    padding: 12px 15px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-family: 'Poppins', sans-serif;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-.form-group input:focus,
-.form-group textarea:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(138, 43, 226, 0.15);
-}
-
 .social-title {
-    margin-top: 2rem;
+    margin-top: 1.5rem; /* Ajusté pour un meilleur espacement après les liens de contact direct */
     margin-bottom: 1rem;
     font-size: 1.2rem;
 }
