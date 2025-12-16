@@ -1004,11 +1004,16 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
     // Vérifier si une session utilisateur existe au chargement de la page
     async function checkUserSession() {
         // --- CORRECTION ---
-        // Vérifier si l'URL contient un hash pour une page publique (#page-apropos, #page-contact)
-        const urlHash = window.location.hash.substring(1); // ex: "page-apropos"
-        const publicPages = ['page-apropos', 'page-contact'];
-        if (publicPages.includes(urlHash)) {
-            showPage(urlHash);
+        // Vérifier si l'URL contient une ancre correspondant à une page publique.
+        // Cela permet d'accéder directement à #apropos ou #contact sans être connecté.
+        const urlHash = window.location.hash.substring(1); // ex: "apropos"
+        const publicPageMap = {
+            'apropos': 'page-apropos',
+            'contacter': 'page-contact'
+        };
+        const targetPageId = publicPageMap[urlHash];
+        if (targetPageId) {
+            showPage(targetPageId);
             return; // Arrêter la fonction ici pour ne pas rediriger
         }
 
