@@ -184,6 +184,27 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
 
     }
 
+    // --- NOUVEAU SYSTÈME DE NOTIFICATIONS ---
+    /**
+     * Affiche une notification à l'écran.
+     * @param {string} message Le message à afficher.
+     * @param {string} type Le type de notification ('success', 'error', 'info').
+     */
+    function showNotification(message, type = 'info') {
+        const container = document.getElementById('notification-container');
+        if (!container) return;
+
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`; // ex: 'notification error'
+        notification.textContent = message;
+
+        container.appendChild(notification);
+
+        // La notification se supprime d'elle-même après l'animation de sortie (5s)
+        setTimeout(() => {
+            notification.remove();
+        }, 5000);
+    }
     // --- GESTIONNAIRE D'ÉVÉNEMENTS GLOBAL POUR LA NAVIGATION ---
     // Au lieu d'ajouter un listener sur chaque bouton, on en met un sur le body
     // et on vérifie si l'élément cliqué (ou un de ses parents) a un attribut `data-target`.
@@ -257,19 +278,19 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
             const ville = document.getElementById('signup-ville').value;
 
             if (name.trim() === '') {
-                alert('Veuillez entrer votre nom complet.');
+                showNotification('Veuillez entrer votre nom complet.', 'error');
                 return;
             }
             if (!email.includes('@')) {
-                alert('Veuillez entrer une adresse e-mail valide.');
+                showNotification('Veuillez entrer une adresse e-mail valide.', 'error');
                 return;
             }
             if (password.trim() === '') {
-                alert('Veuillez créer un mot de passe.');
+                showNotification('Veuillez créer un mot de passe.', 'error');
                 return;
             }
             if (departement === '') {
-                alert('Veuillez choisir votre département.');
+                showNotification('Veuillez choisir votre département.', 'error');
                 return;
             }
 
@@ -317,15 +338,16 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
 
                 currentUser = userProfile;
 
+                showNotification(`Bienvenue, ${currentUser.full_name} !`, 'success');
                 updateDashboard();
                 showPage('page-dashboard');
 
             } catch (error) {
                 // On affiche un message personnalisé si l'e-mail est déjà utilisé
-                if (error.message.includes('duplicate key value violates unique constraint "profiles_email_key"')) {
-                    alert("Un compte existe déjà avec cette adresse e-mail. Veuillez vous connecter.");
+                if (error.message.includes('duplicate key value') || error.message.includes('already registered')) {
+                    showNotification("Un compte existe déjà avec cet e-mail.", 'error');
                 } else {
-                    alert("Une erreur est survenue : " + error.message);
+                    showNotification("Erreur d'inscription : " + error.message, 'error');
                 }
             }
 
@@ -356,15 +378,16 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
 
                 currentUser = userProfile;
 
+                showNotification(`Heureux de vous revoir, ${currentUser.full_name} !`, 'success');
                 updateDashboard();
                 showPage('page-dashboard');
 
             } catch (error) {
                 // On affiche un message plus simple pour l'utilisateur
                 if (error.message.includes("Invalid login credentials")) {
-                    alert("L'adresse e-mail ou le mot de passe est incorrect.");
+                    showNotification("L'adresse e-mail ou le mot de passe est incorrect.", 'error');
                 } else {
-                    alert("Une erreur est survenue : " + error.message);
+                    showNotification("Erreur de connexion : " + error.message, 'error');
                 }
             }
         }
@@ -430,13 +453,15 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
             // (Voir la logique d'initialisation à la fin du fichier)
         } catch (e) {
             console.error("Erreur de connexion Google", e);
-            alert(e.message);
+            showNotification("Erreur de connexion avec Google.", 'error');
         }
     });
 
     // --- GESTION DU BOUTON RETOUR ---
     document.querySelectorAll('.btn-back').forEach(button => {
-        button.addEventListener('click', goBack);
+        // La gestion du retour est maintenant gérée par le listener global `data-target`
+        // On laisse cette fonction pour le swipe et le bouton du navigateur
+        // button.addEventListener('click', goBack);
     });
 
     // --- GESTION DU SWIPE POUR RETOUR ---
@@ -487,16 +512,15 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
 
     async function handleCompleteProfile() {
         if (!tempGoogleUser) {
-            alert("Une erreur est survenue. Veuillez réessayer de vous connecter.");
+            showNotification("Session expirée. Veuillez réessayer de vous connecter.", 'error');
             showPage('page-accueil');
             return;
         }
 
         const departement = document.getElementById('complete-profile-departement').value;
         const ville = document.getElementById('complete-profile-ville').value;
-
-        if (!departement || ville.trim() === '') {
-            alert("Veuillez remplir tous les champs.");
+        if (!departement || ville.trim() === '') { 
+            showNotification("Veuillez remplir tous les champs.", 'error');
             return;
         }
 
@@ -517,11 +541,12 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
 
             currentUser = newProfile;
             tempGoogleUser = null; // Nettoyer l'utilisateur temporaire
+            showNotification(`Profil complété ! Bienvenue, ${currentUser.full_name} !`, 'success');
             checkRestoredSerie(); // Vérifier si une série a été sauvegardée
             updateDashboard();
             showPage('page-dashboard');
         } catch (error) {
-            alert("Erreur lors de la création du profil : " + error.message);
+            showNotification("Erreur lors de la finalisation du profil.", 'error');
         }
     }
 
@@ -548,7 +573,7 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
         allQuestionsForSerie = allQuestionsForSerie.filter(q => q.subject === subject);
         
         if (allQuestionsForSerie.length === 0) {
-            alert(`Aucune question trouvée pour la matière "${subject}" dans la série "${appState.currentSerie}".`);
+            showNotification(`Aucune question pour "${subject}" dans la série "${appState.currentSerie}".`, 'info');
             showPage('page-dashboard');
             return;
         }
@@ -578,7 +603,7 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
         const shuffledNotYetCorrect = shuffleArray(notYetCorrect);
         const shuffledAlreadyCorrect = shuffleArray(alreadyCorrect);
 
-        // On prend autant de questions "non réussies" que possible, jusqu'à la limite du quiz
+        // On prend autant de questions "non réussies" que possible, jusqu'à la limite du quiz (QUESTIONS_PER_QUIZ)
         finalQuestions = shuffledNotYetCorrect.slice(0, QUESTIONS_PER_QUIZ);
 
         // 4. Si on n'a pas assez de questions, on complète avec des questions déjà réussies
@@ -587,7 +612,12 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
             finalQuestions.push(...shuffledAlreadyCorrect.slice(0, remainingNeeded));
         }
 
+        // Si après tout ça, on n'a toujours pas assez de questions (cas où il y a moins de QUESTIONS_PER_QUIZ questions au total)
+        // On se contente de ce qu'on a.
         appState.currentQuestions = finalQuestions;
+
+        // Si aucune question n'est disponible, on arrête.
+        if (appState.currentQuestions.length === 0) return;
 
         startTimer();
         showQuestion();
@@ -969,7 +999,7 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
         }   
             } catch (err) {
                 console.error("Erreur de chargement du classement:", err.message);
-                alert("Impossible de charger le classement.");
+                showNotification("Impossible de charger le classement.", 'error');
             }
         }
         fetchLeaderboard();
@@ -1002,12 +1032,12 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
 
     // --- INITIALISATION ---
     // Vérifier si une session utilisateur existe au chargement de la page
-    async function checkUserSession(initialPageId = 'page-accueil') {
-        // --- CORRECTION DÉFINITIVE ---
-        // Si la page demandée est une page publique, on ne vérifie pas la session
-        // et on l'affiche directement.
+    async function checkUserSession(initialPageId) {
         const publicPages = ['page-apropos', 'page-contact', 'page-accueil'];
-        if (publicPages.includes(initialPageId)) {
+
+        // Si la page demandée est publique ET qu'il n'y a pas de session active, on l'affiche directement.
+        const { data: { session: activeSession } } = await supabase.auth.getSession();
+        if (publicPages.includes(initialPageId) && !activeSession) {
             showPage(initialPageId);
             return;
         }
@@ -1015,19 +1045,21 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
 
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
-            // Si une session existe, récupérer le profil complet
             const { data: userProfile, error } = await supabase
                 .from('profiles')
                 .select('*')
                 .eq('id', session.user.id)
                 .single();
-
+    
             if (userProfile && !error) {
                 // Le profil existe, on continue normalement
                 currentUser = userProfile;
                 checkRestoredSerie();
-                updateDashboard();
-                showPage('page-dashboard');
+                // --- CORRECTION ---
+                // Si l'utilisateur est connecté, on l'envoie vers la page demandée
+                // ou vers le dashboard si la page demandée est une page publique (comme l'accueil).
+                const destinationPage = publicPages.includes(initialPageId) ? 'page-dashboard' : initialPageId;
+                showPage(destinationPage);
             } else if (error && error.code === 'PGRST116') {
                 // ERREUR 'PGRST116' = Le profil n'existe pas. C'est un nouvel utilisateur Google.
                 // On le redirige vers la page pour compléter son profil.
@@ -1042,13 +1074,15 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
         }
     }
 
-    // Logique d'initialisation au chargement de la page
-    const urlHash = window.location.hash.substring(1);
-    const publicPageMap = {
-        'apropos': 'page-apropos',
-        'contacter': 'page-contact',
-        'page-accueil': 'page-accueil'
-    };
-    const initialPage = publicPageMap[urlHash] || 'page-accueil';
-    checkUserSession(initialPage);
+    // --- NOUVELLE LOGIQUE D'INITIALISATION ---
+    // Au chargement, on détermine quelle page afficher en fonction de l'URL
+    function initializeApp() {
+        // On récupère le "hash" de l'URL (ex: #page-apropos) et on enlève le #
+        const hash = window.location.hash.substring(1);
+        // Si le hash est valide et correspond à une page, on l'utilise. Sinon, on utilise 'page-accueil'.
+        const initialPageId = document.getElementById(hash) ? hash : 'page-accueil';
+        checkUserSession(initialPageId);
+    }
+
+    initializeApp();
 });

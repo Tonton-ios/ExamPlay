@@ -403,7 +403,7 @@
         <!-- NOUVELLE PAGE: SÉLECTION DE MATIÈRE -->
         <section id="page-selection-matiere" class="page">
             <header class="app-header">
-                <button class="btn-back" aria-label="Retour"><i class="fas fa-arrow-left"></i> Retour</button>
+                <button class="btn-back" data-target="page-dashboard" aria-label="Retour"><i class="fas fa-arrow-left"></i> Retour</button>
                 <a href="/" class="logo">ExamPlay</a>
                 <div class="user-info">
                     <img src="https://i.imgur.com/user-avatar.png" alt="Avatar" class="avatar">
@@ -509,7 +509,7 @@
         <!-- NOUVELLE PAGE: PROFIL UTILISATEUR -->
         <section id="page-profil" class="page">
             <header class="app-header">
-                <button class="btn-back" aria-label="Retour"><i class="fas fa-arrow-left"></i> Retour</button>
+                <button class="btn-back" data-target="page-dashboard" aria-label="Retour"><i class="fas fa-arrow-left"></i> Retour</button>
                 <div class="logo">Mon Profil</div> <!-- Ce logo n'est pas "ExamPlay", donc on ne le change pas -->
                 <div class="user-info" id="user-info-profil">
                     <img src="https://i.imgur.com/user-avatar.png" alt="Avatar" class="avatar">
@@ -547,6 +547,9 @@
             <button id="badge-modal-close" class="btn btn-primary">Génial !</button>
         </div>
     </div>
+
+    <!-- Conteneur pour les notifications dynamiques -->
+    <div id="notification-container"></div>
 
 
     <!-- On remplace Auth0 par le SDK Supabase -->
