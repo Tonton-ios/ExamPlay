@@ -445,6 +445,11 @@
                 <div id="answers-container" class="answers">
                     <!-- Les boutons de réponse seront générés par JS -->
                 </div>
+                <!-- NOUVEL ÉLÉMENT POUR L'EXPLICATION -->
+                <div id="explanation-container" class="explanation-box" style="display: none;">
+                    <h4>Le saviez-vous ?</h4>
+                    <p id="explanation-text"></p>
+                </div>
             </div>
         </div>
         </section>
@@ -555,6 +560,8 @@
     <!-- On remplace Auth0 par le SDK Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+    <!-- On charge les questions depuis leur propre fichier -->
+    <script src="questions.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
