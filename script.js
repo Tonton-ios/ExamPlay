@@ -53,9 +53,9 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
     // Définition des matières principales par série
     const majorSubjects = {
         "9e AF": ["Maths", "Français", "Sciences Sociales", "Physique"],
-        SVT: ["Biologie", "Géologie", "Chimie", "Philosophie"],
-        SES: ["Économie", "Histoire", "Sciences Sociales", "Philosophie"],
-        SMP: ["Maths", "Physique", "Chimie", "Anglais"],
+        SVT: ["Biologie", "Géologie", "Chimie", ],
+        SES: ["Économie", "Histoire", "Sciences Sociales", ],
+        SMP: ["Maths", "Physique",],
         LLA: ["Art", "Philosophie", "Anglais", "Espagnol", "Créole"]
     };
 
