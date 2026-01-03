@@ -473,6 +473,8 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
                     showNotification("Un compte existe déjà avec cet e-mail.", 'error');
                 } else if (error.message.includes('Email signups are disabled')) {
                     showNotification("Erreur config : Le fournisseur Email est désactivé dans Supabase.", 'error');
+                } else if (error.code === '42703' || error.message.includes('column')) {
+                    showNotification("Erreur Base de Données : Colonne manquante (ex: school). Vérifiez Supabase.", 'error');
                 } else {
                     showNotification("Erreur d'inscription : " + error.message, 'error');
                 }
@@ -1518,7 +1520,7 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
                 .from('profiles')
                 .select('*')
                 .eq('id', session.user.id)
-                .single();
+                .maybeSingle();
     
             if (userProfile && !error) {
                 // Le profil existe, on continue normalement
@@ -1531,6 +1533,9 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
                 const destinationPage = publicPages.includes(initialPageId) ? 'page-dashboard' : initialPageId;
                 showPage(destinationPage);
             } else {
+                // Si une session existe mais pas de profil (ex: inscription échouée), on nettoie.
+                console.warn("Session sans profil détectée. Déconnexion...");
+                await supabase.auth.signOut();
                 showPage('page-accueil');
             }
         } else {
