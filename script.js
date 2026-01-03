@@ -25,7 +25,6 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
     const allNavButtons = document.querySelectorAll('[data-target]');
     let timerInterval;
     let currentUser = null; // Pour stocker les infos de l'utilisateur
-    let tempGoogleUser = null; // Pour stocker temporairement les infos d'un nouvel utilisateur Google
     let pageHistory = []; // Pour gérer l'historique de navigation
 
     // --- CONSTANTES DE CONFIGURATION ---
@@ -359,6 +358,94 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
         });
     });
 
+    // --- GESTION MOT DE PASSE OUBLIÉ ---
+    const forgotPasswordLink = document.getElementById('forgot-password-link');
+    const forgotPasswordForm = document.getElementById('forgot-password-form');
+    
+    if (forgotPasswordLink) {
+        forgotPasswordLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('login-form').classList.remove('active');
+            document.getElementById('signup-form').classList.remove('active');
+            if (forgotPasswordForm) forgotPasswordForm.classList.add('active');
+        });
+    }
+
+    document.querySelectorAll('.back-to-login').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (forgotPasswordForm) forgotPasswordForm.classList.remove('active');
+            document.getElementById('signup-form').classList.remove('active');
+            document.getElementById('login-form').classList.add('active');
+        });
+    });
+
+    const btnReset = document.getElementById('btn-reset-password');
+    if (btnReset) {
+        btnReset.addEventListener('click', async () => {
+            const emailInput = document.getElementById('reset-email');
+            const email = emailInput.value.trim();
+
+            if (!email || !email.includes('@')) {
+                showNotification('Veuillez entrer une adresse e-mail valide.', 'error');
+                return;
+            }
+
+            try {
+                const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                    redirectTo: window.location.href,
+                });
+                if (error) throw error;
+                showNotification('Si le compte existe, un email a été envoyé.', 'success');
+            } catch (error) {
+                showNotification("Erreur : " + error.message, 'error');
+            }
+        });
+    }
+
+    // --- GESTION DU NOUVEAU MOT DE PASSE (Après lien email) ---
+    
+    // 1. Détecter si l'utilisateur arrive via un lien de réinitialisation
+    supabase.auth.onAuthStateChange((event, session) => {
+        if (event === 'PASSWORD_RECOVERY') {
+            showPage('page-auth'); // On s'assure d'être sur la page de connexion
+            // Masquer les autres formulaires
+            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+            // Afficher le formulaire de nouveau mot de passe
+            const updateForm = document.getElementById('update-password-form');
+            if (updateForm) updateForm.classList.add('active');
+        }
+    });
+
+    // 2. Gérer la soumission du nouveau mot de passe
+    const btnUpdatePassword = document.getElementById('btn-update-password');
+    if (btnUpdatePassword) {
+        btnUpdatePassword.addEventListener('click', async () => {
+            const passwordInput = document.getElementById('update-password-input');
+            const newPassword = passwordInput.value;
+
+            if (newPassword.trim().length < 6) {
+                showNotification('Le mot de passe doit contenir au moins 6 caractères.', 'error');
+                return;
+            }
+
+            try {
+                // Met à jour le mot de passe de l'utilisateur actuellement connecté (via le lien magique)
+                const { error } = await supabase.auth.updateUser({ password: newPassword });
+                if (error) throw error;
+
+                showNotification('Mot de passe mis à jour avec succès !', 'success');
+                
+                // Masquer le formulaire et rediriger vers le dashboard
+                document.getElementById('update-password-form').classList.remove('active');
+                showPage('page-dashboard');
+
+            } catch (error) {
+                showNotification("Erreur : " + error.message, 'error');
+            }
+        });
+    }
+
     // --- GESTION DU MENU UTILISATEUR ---
     function handleLogout() {
         // Réinitialiser l'état de l'application
@@ -390,23 +477,6 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
 
     document.querySelectorAll('.dropdown-item[id^="logout-btn"]').forEach(btn => {
         btn.addEventListener('click', handleLogout);
-    });
-
-    // --- GESTION DE LA CONNEXION GOOGLE (AVEC SUPABASE) ---
-    document.querySelector('.btn-google').addEventListener('click', async (event) => {
-        event.preventDefault();
-        try {
-            const { data, error } = await supabase.auth.signInWithOAuth({
-                provider: 'google',
-            });
-            if (error) throw error;
-            // Après la connexion Google, Supabase redirige.
-            // Nous devons gérer la session au rechargement de la page.
-            // (Voir la logique d'initialisation à la fin du fichier)
-        } catch (e) {
-            console.error("Erreur de connexion Google", e);
-            showNotification("Erreur de connexion avec Google.", 'error');
-        }
     });
 
     // --- GESTION DU BOUTON RETOUR ---
@@ -450,57 +520,12 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
         }
     }
 
-    // --- GESTION DE LA FINALISATION DU PROFIL (POUR GOOGLE) ---
-    document.getElementById('complete-profile-btn').addEventListener('click', async () => {
-        await handleCompleteProfile();
-    });
-
     // Ajout d'un bouton de retour pour le navigateur (desktop)
     window.addEventListener('popstate', () => {
         if (pageHistory.length > 1) {
             goBack();
         }
     });
-
-    async function handleCompleteProfile() {
-        if (!tempGoogleUser) {
-            showNotification("Session expirée. Veuillez réessayer de vous connecter.", 'error');
-            showPage('page-accueil');
-            return;
-        }
-
-        const departement = document.getElementById('complete-profile-departement').value;
-        const ville = document.getElementById('complete-profile-ville').value;
-        if (!departement || ville.trim() === '') { 
-            showNotification("Veuillez remplir tous les champs.", 'error');
-            return;
-        }
-
-        try {
-            const { data: newProfile, error: insertError } = await supabase
-                .from('profiles')
-                .insert({
-                    id: tempGoogleUser.id,
-                    full_name: tempGoogleUser.user_metadata.full_name,
-                    email: tempGoogleUser.email,
-                    picture: tempGoogleUser.user_metadata.picture,
-                    departement: departement,
-                    ville: ville
-                })
-                .select().single();
-
-            if (insertError) throw insertError;
-
-            currentUser = newProfile;
-            tempGoogleUser = null; // Nettoyer l'utilisateur temporaire
-            showNotification(`Profil complété ! Bienvenue, ${currentUser.full_name} !`, 'success');
-            checkRestoredSerie(); // Vérifier si une série a été sauvegardée
-            updateDashboard();
-            showPage('page-dashboard');
-        } catch (error) {
-            showNotification("Erreur lors de la finalisation du profil.", 'error');
-        }
-    }
 
     // --- LOGIQUE DU QUIZ ---
 
@@ -1025,11 +1050,6 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
                 // ou vers le dashboard si la page demandée est une page publique (comme l'accueil).
                 const destinationPage = publicPages.includes(initialPageId) ? 'page-dashboard' : initialPageId;
                 showPage(destinationPage);
-            } else if (error && error.code === 'PGRST116') {
-                // ERREUR 'PGRST116' = Le profil n'existe pas. C'est un nouvel utilisateur Google.
-                // On le redirige vers la page pour compléter son profil.
-                tempGoogleUser = session.user; // On stocke ses infos temporairement
-                showPage('page-complete-profile');
             } else {
                 showPage('page-accueil');
             }

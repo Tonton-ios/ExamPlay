@@ -138,13 +138,12 @@
                         <div>
                             <label for="login-password" class="sr-only">Mot de passe</label>
                             <input id="login-password" type="password" placeholder="Mot de passe" required>
+                            <div style="text-align: right; margin-top: 0.5rem;">
+                                <a href="#" id="forgot-password-link" style="font-size: 0.85rem; color: var(--primary-color); text-decoration: none;">Mot de passe oublié ?</a>
+                            </div>
                         </div>
                         <button type="button" class="btn btn-primary" data-target="page-dashboard">Se connecter</button>
                     </form>
-                    <div class="divider">ou</div>
-                    <button class="btn btn-google">
-                        <img src="landingpage_foto/google_icon.PNG" alt="Google logo"> Continuer avec Google
-                    </button>
                     <p class="auth-switch">Pas encore de compte ? <a href="#" class="toggle-auth">Inscris-toi</a></p>
                 </div>
 
@@ -193,35 +192,35 @@
                     <p class="form-note">* Utilise une adresse e-mail valide pour recevoir les nouveautés.</p>
                     <p class="auth-switch">Déjà un compte ? <a href="#" class="toggle-auth">Connecte-toi</a></p>
                 </div>
-            </div>
-        </div>
-        </section>
 
-        <!-- NOUVELLE PAGE: COMPLÉTER LE PROFIL (POUR GOOGLE AUTH) -->
-        <section id="page-complete-profile" class="page">
-            <div class="auth-container">
-                <div class="auth-card">
-                    <h2>Finaliser l'inscription</h2>
-                    <p style="margin-bottom: 1.5rem; color: #666;">Il ne manque que quelques informations pour compléter votre profil.</p>
-                    <form id="complete-profile-form">
-                        <select id="complete-profile-departement" required>
-                            <option value="" disabled selected>Choisis ton département</option>
-                            <option value="Ouest">Ouest</option>
-                            <option value="Sud">Sud</option>
-                            <option value="Nord">Nord</option>
-                            <option value="Nippes">Nippes</option>
-                            <option value="Grand'Anse">Grand'Anse</option>
-                            <option value="Sud-Est">Sud-Est</option>
-                            <option value="Nord-Ouest">Nord-Ouest</option>
-                            <option value="Artibonite">Artibonite</option>
-                            <option value="Centre">Centre</option>
-                            <option value="Nord-Est">Nord-Est</option>
-                        </select>
-                        <input id="complete-profile-ville" type="text" placeholder="Ville" required>
-                        <button type="button" id="complete-profile-btn" class="btn btn-primary">Terminer l'inscription</button>
+                <!-- Formulaire Mot de passe oublié (caché par défaut) -->
+                <div id="forgot-password-form" class="auth-form">
+                    <h2>Réinitialisation</h2>
+                    <p style="margin-bottom: 1.5rem; color: #666; font-size: 0.9rem;">Entre ton e-mail pour recevoir un lien de réinitialisation.</p>
+                    <form>
+                        <div>
+                            <label for="reset-email" class="sr-only">Adresse e-mail</label>
+                            <input id="reset-email" type="email" placeholder="Adresse e-mail" required>
+                        </div>
+                        <button type="button" id="btn-reset-password" class="btn btn-primary">Envoyer le lien</button>
+                    </form>
+                    <p class="auth-switch"><a href="#" class="back-to-login">Retour à la connexion</a></p>
+                </div>
+
+                <!-- Formulaire Nouveau Mot de passe (affiché après clic sur le lien email) -->
+                <div id="update-password-form" class="auth-form">
+                    <h2>Nouveau mot de passe</h2>
+                    <p style="margin-bottom: 1.5rem; color: #666; font-size: 0.9rem;">Crée ton nouveau mot de passe pour accéder à ton compte.</p>
+                    <form>
+                        <div>
+                            <label for="update-password-input" class="sr-only">Nouveau mot de passe</label>
+                            <input id="update-password-input" type="password" placeholder="Nouveau mot de passe" required>
+                        </div>
+                        <button type="button" id="btn-update-password" class="btn btn-primary">Enregistrer le mot de passe</button>
                     </form>
                 </div>
             </div>
+        </div>
         </section>
 
         <!-- NOUVELLE PAGE: À PROPOS -->
