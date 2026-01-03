@@ -44,8 +44,8 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
     };
     
     // --- CONFIGURATION SUPABASE ---
-    const SUPABASE_URL = 'https://rhferbbmwductjqwfsie.supabase.co'; //  URL du projet Supabase
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJoZmVyYmJtd2R1Y3RqcXdmc2llIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU4MDc0ODQsImV4cCI6MjA4MTM4MzQ4NH0.3GmSvvkcTwzTTxbe9K0L0SHhvholI4-xA3Kl6JuSdok'; //  clé anon public du projet
+    const SUPABASE_URL = 'https://rhferbbmwductjqwfsie.supabase.co'; // Collez votre URL ici
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJoZmVyYmJtd2R1Y3RqcXdmc2llIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU4MDc0ODQsImV4cCI6MjA4MTM4MzQ4NH0.3GmSvvkcTwzTTxbe9K0L0SHhvholI4-xA3Kl6JuSdok'; // Collez votre clé anon ici
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     // --- CONFIGURATIONS DU QUIZ ---
