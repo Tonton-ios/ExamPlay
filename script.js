@@ -389,6 +389,13 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
             const school = document.getElementById('signup-school').value; // Récupération de l'école
             const serie = document.getElementById('signup-serie').value; // On récupère la série
 
+            // Vérification critique : Si la série est vide (ex: après un rafraîchissement), on bloque.
+            if (!serie || serie.trim() === '') {
+                showNotification('Veuillez sélectionner une série avant de vous inscrire.', 'error');
+                setTimeout(() => showPage('page-selection-serie'), 1500);
+                return;
+            }
+
             if (name.trim() === '') {
                 showNotification('Veuillez entrer votre nom complet.', 'error');
                 return;
@@ -460,6 +467,7 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
                 showPage('page-dashboard');
 
             } catch (error) {
+                console.error("Erreur d'inscription:", error);
                 // On affiche un message personnalisé si l'e-mail est déjà utilisé
                 if (error.message.includes('duplicate key value') || error.message.includes('already registered')) {
                     showNotification("Un compte existe déjà avec cet e-mail.", 'error');
