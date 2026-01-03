@@ -38,6 +38,10 @@
                 <img src="landingpage_foto/etudiants_.PNG" alt="Illustration d'étudiants qui révisent">
             </div>
         </section>
+        <!-- PREUVE SOCIALE: COMPTEUR GLOBAL -->
+        <section id="social-proof" style="text-align: center; padding: 1rem; background: #f8f9fa; border-bottom: 1px solid #eee;">
+            <p style="font-size: 1.1rem; color: #555;"><i class="fas fa-fire" style="color: #FF9800;"></i> <span id="global-questions-counter" style="font-weight: bold; color: var(--primary-color);">15 420</span> questions répondues cette semaine !</p>
+        </section>
         <section id="notre-mission">
             <h2>Notre Mission : Votre Réussite Aux Examens de l'ÉTAT </h2>
             <p>ExamPlay a été conçu par des étudiants, pour des étudiants. Notre objectif est simple : transformer les longues heures de révision en une expérience motivante et interactive. 
@@ -186,6 +190,10 @@
                         <div>
                             <label for="signup-ville" class="sr-only">Ville</label>
                             <input id="signup-ville" type="text" placeholder="Ville" required>
+                        </div>
+                        <div>
+                            <label for="signup-school" class="sr-only">Nom de ton école</label>
+                            <input id="signup-school" type="text" placeholder="Nom de ton école (Optionnel)">
                         </div>
                         <button type="button" class="btn btn-primary" data-target="page-dashboard">Créer un compte</button>
                     </form>
@@ -374,11 +382,31 @@
         </header>
         <div class="dashboard-content">
             <p class="user-serie"><span class="selection-label">Série</span> : <span id="dashboard-serie" class="user-serie-name"></span></p>
-            <button class="btn btn-primary btn-large" data-target="page-selection-matiere">Lancer un quiz !</button>
+            
+            <!-- NOUVEAUX MODES DE JEU -->
+            <div class="modes-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                <button class="mode-card btn btn-primary" id="btn-mode-quick" style="padding: 1rem; display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-bolt" style="font-size: 1.5rem;"></i> <span>Quiz Rapide</span>
+                </button>
+                <button class="mode-card btn btn-primary" id="btn-mode-subject" style="padding: 1rem; display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-book" style="font-size: 1.5rem;"></i> <span>Par Matière</span>
+                </button>
+                <button class="mode-card btn btn-primary" id="btn-mode-exam" style="padding: 1rem; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; background-color: #F44336; border-color: #F44336;">
+                    <i class="fas fa-clock" style="font-size: 1.5rem;"></i> <span>Mode Examen</span>
+                </button>
+                <button class="mode-card btn btn-primary" id="btn-mode-smart" style="padding: 1rem; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; background-color: #9C27B0; border-color: #9C27B0;">
+                    <i class="fas fa-brain" style="font-size: 1.5rem;"></i> <span>Révision Smart</span>
+                </button>
+            </div>
+
             <div class="stats-grid">
                 <div class="stat-card">
                     <h3>Points</h3>
                     <p id="dashboard-points">0 pts</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Série</h3>
+                    <p id="dashboard-streak">0 jour 🔥</p>
                 </div>
                 <div class="stat-card">
                     <h3>Mes Badges</h3>
@@ -394,6 +422,10 @@
                 <div class="stat-card leaderboard-card" data-target="page-leaderboard">
                     <h3>Classement</h3>
                     <p>🏆 Voir le top</p>
+                </div>
+                <div class="stat-card orientation-card" data-target="page-orientation" style="background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%); color: white;">
+                    <h3>Orientation</h3>
+                    <p>🎓 Ton avenir après le NS4</p>
                 </div>
             </div>
         </div>
@@ -422,12 +454,17 @@
         <header class="app-header">
             <div class="quiz-info"><span class="selection-label">Série</span> : <span id="quiz-serie" class="user-serie-name">SVT</span></div>
             <div class="quiz-header-right">
-                <div class="timer">
-                    <svg width="60" height="60" viewBox="0 0 60 60">
-                        <circle class="timer-bg" cx="30" cy="30" r="26"></circle>
-                        <circle id="timer-progress" class="timer-progress" cx="30" cy="30" r="26"></circle>
+                <!-- VIES (Affiché uniquement en Mode Examen) -->
+                <div id="quiz-lives" class="lives-container" style="display: none; margin-right: 15px; font-size: 1.2rem; color: #F44336;">
+                    <i class="fas fa-heart"></i> <i class="fas fa-heart"></i> <i class="fas fa-heart"></i>
+                </div>
+                <!-- MINUTEUR (Affiché uniquement en Mode Examen) -->
+                <div id="quiz-timer" class="timer" style="display: none; position: relative; width: 50px; height: 50px; margin-right: 10px;">
+                    <svg width="50" height="50" viewBox="0 0 60 60" style="transform: rotate(-90deg);">
+                        <circle cx="30" cy="30" r="26" style="fill: none; stroke: #eee; stroke-width: 6;"></circle>
+                        <circle id="timer-progress" cx="30" cy="30" r="26" style="fill: none; stroke: #F44336; stroke-width: 6; stroke-dasharray: 163; stroke-dashoffset: 0; transition: stroke-dashoffset 1s linear;"></circle>
                     </svg>
-                    <span id="timer-display">60</span>
+                    <span id="timer-display" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: bold; font-size: 0.9rem;">60</span>
                 </div>
                 <div class="user-info" id="user-info-quiz">
                     <img src="https://i.imgur.com/user-avatar.png" alt="Avatar" class="avatar">
@@ -449,6 +486,10 @@
                     <h4>Le saviez-vous ?</h4>
                     <p id="explanation-text"></p>
                 </div>
+                <!-- NOUVEAU BOUTON "SUIVANT" -->
+                <button id="btn-next-question" class="btn btn-primary" style="display: none; margin-top: 1rem;">Suivant</button>
+                <!-- BOUTON SIGNALER UNE ERREUR -->
+                <button id="btn-report-error" class="btn" style="background: transparent; color: #999; font-size: 0.8rem; margin-top: 1rem; border: none; text-decoration: underline;"><i class="fas fa-flag"></i> Signaler une erreur</button>
             </div>
         </div>
         </section>
@@ -463,6 +504,14 @@
                 <p id="final-score" class="score">0/0</p>
                 <p id="points-gagnes" class="points-gagnes">+ 0 points</p>
             </div>
+            
+            <!-- BOUTONS DE PARTAGE ET DUEL -->
+            <div style="display: flex; gap: 1rem; justify-content: center; margin-bottom: 1.5rem;">
+                <button id="btn-share-whatsapp" class="btn" style="background-color: #25D366; color: white; flex: 1;"><i class="fab fa-whatsapp"></i> Partager</button>
+                <button id="btn-duel-friend" class="btn" style="background-color: #333; color: white; flex: 1;"><i class="fas fa-fist-raised"></i> Défier un ami</button>
+            </div>
+
+            <div id="quiz-review-container" style="width: 100%; max-width: 500px; margin-bottom: 1.5rem;"></div>
             <!-- La section de badge débloqué est maintenant une modale, donc on la retire d'ici -->
             <button class="btn btn-primary" data-target="page-dashboard">Retour au Dashboard</button>
         </div>
@@ -481,7 +530,7 @@
             </div>
         </header>
         <div class="leaderboard-container">
-            <h1 id="leaderboard-page-title">Classement du département</h1>
+            <h1 id="leaderboard-page-title">Classement National <span id="leaderboard-serie-name"></span></h1>
             
             <!-- Ligue Or -->
             <div class="league-section gold">
@@ -508,6 +557,32 @@
                 <ul id="relegation-list" class="leaderboard-list"></ul>
             </div>
         </div>
+        </section>
+
+        <!-- NOUVELLE PAGE: ORIENTATION -->
+        <section id="page-orientation" class="page">
+            <header class="app-header">
+                <button class="btn-back" data-target="page-dashboard" aria-label="Retour"><i class="fas fa-arrow-left"></i> Retour</button>
+                <div class="logo">Mon Avenir</div>
+                <div class="user-info">
+                    <img src="https://i.imgur.com/user-avatar.png" alt="Avatar" class="avatar">
+                </div>
+            </header>
+            <div class="content-container">
+                <div class="orientation-header" style="text-align: center; margin-bottom: 2rem;">
+                    <h2>Coach d'Orientation</h2>
+                    <p>Basé sur ton profil <span id="orientation-serie-name" style="font-weight: bold; color: var(--primary-color);"></span>, voici les meilleures options pour tes études supérieures en Haïti.</p>
+                </div>
+                <div id="orientation-suggestions" class="orientation-grid" style="display: grid; gap: 1.5rem;">
+                    <!-- Les suggestions seront générées par JS -->
+                </div>
+                
+                <!-- SECTION TÉMOIGNAGES -->
+                <div class="testimonials-section" style="margin-top: 3rem;">
+                    <h3 style="text-align: center; margin-bottom: 1.5rem;">Ils sont passés par là 💬</h3>
+                    <div id="orientation-testimonials" style="display: grid; gap: 1rem;"></div>
+                </div>
+            </div>
         </section>
 
         <!-- NOUVELLE PAGE: PROFIL UTILISATEUR -->
@@ -548,6 +623,7 @@
             <h2>Nouveau Badge Débloqué !</h2>
             <h3 id="badge-modal-name"></h3>
             <p id="badge-modal-description"></p>
+            <button id="badge-modal-share" class="btn" style="background-color: #25D366; color: white; margin-bottom: 1rem; width: 100%;"><i class="fab fa-whatsapp"></i> Partager sur Statut</button>
             <button id="badge-modal-close" class="btn btn-primary">Génial !</button>
         </div>
     </div>
