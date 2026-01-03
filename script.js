@@ -471,6 +471,8 @@ document.addEventListener('DOMContentLoaded', async () => { // Rendre la fonctio
                 // On affiche un message personnalisé si l'e-mail est déjà utilisé
                 if (error.message.includes('duplicate key value') || error.message.includes('already registered')) {
                     showNotification("Un compte existe déjà avec cet e-mail.", 'error');
+                } else if (error.message.includes('Email signups are disabled')) {
+                    showNotification("Erreur config : Le fournisseur Email est désactivé dans Supabase.", 'error');
                 } else {
                     showNotification("Erreur d'inscription : " + error.message, 'error');
                 }
